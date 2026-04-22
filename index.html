@@ -957,14 +957,21 @@ tr.r-exp   { background: rgba(240,64,64,.04) !important; }
 .ov-insight-pill .pip-val{font-family:JetBrains Mono,monospace;font-size:11px;font-weight:800}
 
 /* Funnel */
-.ov-funnel-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
-.ov-funnel-label{width:110px;font-size:10.5px;font-weight:600;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
-.ov-funnel-track{flex:1;height:22px;background:var(--s4);border-radius:6px;overflow:hidden;position:relative}
-.ov-funnel-fill{height:22px;border-radius:6px;display:flex;align-items:center;padding-left:8px;transition:width .7s cubic-bezier(.16,1,.3,1)}
-.ov-funnel-inner{font-size:9px;font-weight:800;color:rgba(255,255,255,.9);white-space:nowrap;position:relative;z-index:1}
-.ov-funnel-num{font-family:JetBrains Mono,monospace;font-size:11px;font-weight:700;flex-shrink:0;min-width:28px;text-align:right}
-.ov-funnel-pct{font-size:9px;color:var(--t3);min-width:36px;text-align:right;flex-shrink:0}
-.ov-funnel-arrow{font-size:10px;color:var(--t4);flex-shrink:0;margin:0 -4px}
+.ov-funnel-stack{display:flex;flex-direction:column;gap:10px}
+.ov-funnel-card{position:relative;padding:14px 14px 12px 16px;border-radius:14px;background:linear-gradient(135deg,color-mix(in srgb,var(--s3) 92%,white 8%),var(--s3));border:1px solid var(--bd);overflow:hidden}
+.ov-funnel-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--funnel-color,var(--blue))}
+.ov-funnel-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px}
+.ov-funnel-card-label{min-width:0}
+.ov-funnel-eyebrow{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:4px}
+.ov-funnel-name{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.01em}
+.ov-funnel-sub{font-size:10px;color:var(--t3);margin-top:2px}
+.ov-funnel-value{font-family:JetBrains Mono,monospace;font-size:24px;font-weight:800;line-height:1;color:var(--funnel-color,var(--blue));text-align:right}
+.ov-funnel-share{font-size:10px;font-weight:700;color:var(--t3);text-align:right;margin-top:4px}
+.ov-funnel-bar{height:8px;border-radius:999px;background:var(--s5);overflow:hidden}
+.ov-funnel-fill{height:100%;border-radius:999px;background:var(--funnel-color,var(--blue));min-width:10px;transition:width .55s cubic-bezier(.16,1,.3,1)}
+.ov-funnel-meta{display:flex;gap:14px;flex-wrap:wrap;padding-top:10px;margin-top:12px;border-top:1px solid var(--bd)}
+.ov-funnel-meta-item{font-size:10px;color:var(--t3)}
+.ov-funnel-meta-item strong{font-family:JetBrains Mono,monospace;font-size:11px}
 
 /* Visa Section */
 .ov-visa-stack{display:flex;flex-direction:column;gap:10px}
@@ -6945,35 +6952,36 @@ function renderOvFunnel(){
   const aging=d.filter(x=>x.days>=170&&x.days<9999&&x.st!=='PO'&&!x.backout).length;
 
   const stages=[
-    {label:'Total Profiles', val:total, color:'var(--blue)', pct:100},
-    {label:'Active',         val:active, color:'var(--green)', pct:total?Math.round(active/total*100):0},
-    {label:'New',            val:newP,   color:'var(--blue-l)', pct:total?Math.round(newP/total*100):0},
-    {label:'Low Priority',   val:low,    color:'var(--amber)', pct:total?Math.round(low/total*100):0},
-    {label:'On Hold',        val:hold,   color:'var(--orange)', pct:total?Math.round(hold/total*100):0},
-    {label:'PO Placed',      val:po,     color:'var(--purple)', pct:total?Math.round(po/total*100):0},
+    {label:'Total Profiles', sub:'Complete pipeline loaded', val:total, color:'var(--blue)', pct:100},
+    {label:'Active',         sub:'Currently being marketed', val:active, color:'var(--green)', pct:total?Math.round(active/total*100):0},
+    {label:'New',            sub:'Fresh profiles awaiting push', val:newP, color:'var(--blue-l)', pct:total?Math.round(newP/total*100):0},
+    {label:'Low Priority',   sub:'Needs slower follow-up', val:low, color:'var(--amber)', pct:total?Math.round(low/total*100):0},
+    {label:'On Hold',        sub:'Paused or temporarily blocked', val:hold, color:'var(--orange)', pct:total?Math.round(hold/total*100):0},
+    {label:'PO Placed',      sub:'Converted successfully', val:po, color:'var(--purple)', pct:total?Math.round(po/total*100):0},
   ];
-  const mx=total||1;
   const el=document.getElementById('ov-funnel');
   if(!el)return;
-  el.innerHTML=stages.map((s,i)=>{
-    const w=Math.round(s.val/mx*100);
-    const showInner=w>18;
-    return `<div class="ov-funnel-row">
-      <span class="ov-funnel-label" title="${esc(s.label)}">${esc(s.label)}</span>
-      <div class="ov-funnel-track">
-        <div class="ov-funnel-fill" style="width:${w}%;background:${s.color}">
-          ${showInner?`<span class="ov-funnel-inner">${s.val}</span>`:''}
+  el.innerHTML=`<div class="ov-funnel-stack">${stages.map(s=>{
+    return `<div class="ov-funnel-card" style="--funnel-color:${s.color}">
+      <div class="ov-funnel-card-top">
+        <div class="ov-funnel-card-label">
+          <div class="ov-funnel-eyebrow">Pipeline Stage</div>
+          <div class="ov-funnel-name">${esc(s.label)}</div>
+          <div class="ov-funnel-sub">${esc(s.sub)}</div>
+        </div>
+        <div>
+          <div class="ov-funnel-value">${s.val}</div>
+          <div class="ov-funnel-share">${s.pct}% of total</div>
         </div>
       </div>
-      <span class="ov-funnel-num" style="color:${s.color}">${s.val}</span>
-      <span class="ov-funnel-pct">${s.pct}%</span>
+      <div class="ov-funnel-bar"><div class="ov-funnel-fill" style="width:${Math.max(s.pct, s.val > 0 ? 8 : 0)}%"></div></div>
     </div>`;
-  }).join('')
-  + `<div style="margin-top:12px;display:flex;gap:14px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--bd)">
-      <span style="font-size:10px;color:var(--t3)">⚡ Unassigned: <b style="color:var(--teal)">${unassigned}</b></span>
-      <span style="font-size:10px;color:var(--t3)">🔥 Aging 170+: <b style="color:var(--red)">${aging}</b></span>
-      <span style="font-size:10px;color:var(--t3)">📊 PO Rate: <b style="color:var(--purple)">${total?Math.round(po/total*100):0}%</b></span>
-    </div>`;
+  }).join('')}</div>
+  <div class="ov-funnel-meta">
+    <span class="ov-funnel-meta-item">Unassigned: <strong style="color:var(--teal)">${unassigned}</strong></span>
+    <span class="ov-funnel-meta-item">Aging 170+: <strong style="color:var(--red)">${aging}</strong></span>
+    <span class="ov-funnel-meta-item">PO Rate: <strong style="color:var(--purple)">${total?Math.round(po/total*100):0}%</strong></span>
+  </div>`;
 }
 
 function renderOvVisaMix(){
