@@ -5143,21 +5143,28 @@ function populateATechDropdown(){
 // FIX: nav function - updated with categories
 // ═══════════════════════════════════════════════════════════════════════════
 function nav(v){
+  if(window._vizvaCurrentView===v)return;
+  window._vizvaCurrentView=v;
   VIEWS.forEach(id=>document.getElementById('v-'+id)?.classList.toggle('on',id===v));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('on'));
   const idx={overview:0,analytics:1,profiles:2,assign:3,'add-candidate':4,recruiters:5,teamleads:6,alerts:7,po:8,insights:9,sources:10};
   const items=document.querySelectorAll('.nav-item');if(items[idx[v]])items[idx[v]].classList.add('on');
   document.getElementById('pg-title').textContent=TITLES[v]||v;
-  if(v==='analytics'){populateAnaFilters();renderAnalytics();}
-  if(v==='profiles'){populateAnaFilters();renderProfiles();}
-  if(v==='add-candidate'){updateBranchRecs();renderRecentAdded();}
-  if(v==='assign'){renderLog();populateAnaFilters();populateATechDropdown();}
-  if(v==='recruiters')renderRecruiters();
-  if(v==='teamleads')renderTLs();
-  if(v==='alerts')renderAlerts();
-  if(v==='po')renderPO();
-  if(v==='insights')renderInsights();
-  if(v==='sources')renderSources();
+  if(window._vizvaNavRenderTimer) clearTimeout(window._vizvaNavRenderTimer);
+  window._vizvaNavRenderTimer=setTimeout(()=>{
+    if(window._vizvaCurrentView!==v)return;
+    if(v==='overview'){ if(window.renderOverviewAll) renderOverviewAll(); else { renderOvStatStrip && renderOvStatStrip(); renderOvTable && renderOvTable(); } }
+    if(v==='analytics'){populateAnaFilters();renderAnalytics();}
+    if(v==='profiles'){populateAnaFilters();renderProfiles();}
+    if(v==='add-candidate'){updateBranchRecs();renderRecentAdded();}
+    if(v==='assign'){renderLog();populateAnaFilters();populateATechDropdown();}
+    if(v==='recruiters')renderRecruiters();
+    if(v==='teamleads')renderTLs();
+    if(v==='alerts')renderAlerts();
+    if(v==='po')renderPO();
+    if(v==='insights')renderInsights();
+    if(v==='sources')renderSources();
+  },0);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
