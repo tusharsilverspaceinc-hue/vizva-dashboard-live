@@ -6567,10 +6567,11 @@ function startAutoSync(){
   // Auto-sync every 30 seconds
   if(window._syncTimer) clearInterval(window._syncTimer);
   window._syncTimer=setInterval(()=>{
+    if(document.hidden) return;
     const linked=Object.entries(S.sheets||{}).filter(([,v])=>v&&v.linked);
     if(linked.length){
       linked.forEach(([branch])=>{
-        fetchSheetData(branch,()=>{refreshAll();renderSources();},()=>{});
+        fetchSheetData(branch,()=>{if(window.scheduleLightRefresh) window.scheduleLightRefresh(); else { refreshAll(); renderSources(); }},()=>{});
       });
     }
   },30000);
@@ -10264,11 +10265,31 @@ window.renderOverviewAll = function() {
       if (v === 'sources') setTimeout(refreshV13, 60);
     };
   }
+  let v13RefreshTimer = null;
+  function scheduleV13Refresh() {
+    if (v13RefreshTimer) clearTimeout(v13RefreshTimer);
+    v13RefreshTimer = setTimeout(() => {
+      v13RefreshTimer = null;
+      refreshV13();
+    }, 120);
+  }
+
+  if (!window.scheduleLightRefresh) {
+    let lightRefreshTimer = null;
+    window.scheduleLightRefresh = function() {
+      if (lightRefreshTimer) return;
+      lightRefreshTimer = setTimeout(() => {
+        lightRefreshTimer = null;
+        try { window.refreshAll && window.refreshAll(); } catch(e) {}
+      }, 120);
+    };
+  }
+
   if (typeof window.refreshAll === 'function') {
     const _orig = window.refreshAll;
     window.refreshAll = function() {
       _orig.apply(this, arguments);
-      setTimeout(refreshV13, 100);
+      scheduleV13Refresh();
     };
   }
 
