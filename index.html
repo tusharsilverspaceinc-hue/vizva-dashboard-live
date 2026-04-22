@@ -967,12 +967,18 @@ tr.r-exp   { background: rgba(240,64,64,.04) !important; }
 .ov-funnel-arrow{font-size:10px;color:var(--t4);flex-shrink:0;margin:0 -4px}
 
 /* Visa Section */
-.ov-visa-prop-bar{height:18px;border-radius:6px;overflow:hidden;display:flex;gap:2px;margin-bottom:12px}
-.ov-visa-seg{height:18px;min-width:4px;border-radius:3px;transition:flex .6s cubic-bezier(.16,1,.3,1)}
-.ov-visa-legend{display:flex;flex-wrap:wrap;gap:7px}
-.ov-visa-item{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:var(--t2)}
-.ov-visa-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.ov-visa-count{font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700}
+.ov-visa-stack{display:flex;flex-direction:column;gap:10px}
+.ov-visa-card{position:relative;padding:13px 14px 12px;border-radius:12px;background:linear-gradient(135deg,color-mix(in srgb,var(--s3) 94%,white 6%),var(--s3));border:1px solid var(--bd);overflow:hidden}
+.ov-visa-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--visa-color,#888)}
+.ov-visa-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.ov-visa-card-label{display:flex;align-items:center;gap:8px;min-width:0}
+.ov-visa-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;background:var(--visa-color,#888);box-shadow:0 0 0 3px color-mix(in srgb,var(--visa-color,#888) 18%, transparent)}
+.ov-visa-name{font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.01em}
+.ov-visa-sub{font-size:10px;color:var(--t3);margin-top:2px}
+.ov-visa-count{font-family:JetBrains Mono,monospace;font-size:22px;font-weight:800;line-height:1;color:var(--visa-color,#888);text-align:right}
+.ov-visa-pct{font-size:10px;color:var(--t3);font-weight:700;text-align:right;margin-top:4px}
+.ov-visa-bar{height:8px;border-radius:999px;background:var(--s5);overflow:hidden}
+.ov-visa-fill{height:100%;border-radius:999px;background:var(--visa-color,#888);min-width:10px;transition:width .7s cubic-bezier(.16,1,.3,1)}
 
 /* Experience Band Cards */
 .ov-exp-card{padding:13px 14px;border-radius:12px;background:var(--s3);border:1px solid var(--bd);text-align:center;position:relative;overflow:hidden}
@@ -6974,9 +6980,26 @@ function renderOvVisaMix(){
   if(!el)return;
   if(note)note.textContent=total+' active profiles';
   if(!sorted.length){el.innerHTML='<div class="empty">No visa data</div>';return;}
-  const bar=`<div class="ov-visa-prop-bar">${sorted.map(([v,n])=>`<div class="ov-visa-seg" style="flex:${n};background:${VCOLS_VISA[v]||'#888'}" title="${esc(v)}: ${n}"></div>`).join('')}</div>`;
-  const legend=`<div class="ov-visa-legend">${sorted.map(([v,n])=>`<span class="ov-visa-item"><span class="ov-visa-dot" style="background:${VCOLS_VISA[v]||'#888'}"></span><span>${esc(v)}</span><span class="ov-visa-count" style="color:${VCOLS_VISA[v]||'#888'}">${n}</span><span style="font-size:9px;color:var(--t4)">${total?Math.round(n/total*100):0}%</span></span>`).join('')}</div>`;
-  el.innerHTML=bar+legend;
+  el.innerHTML=`<div class="ov-visa-stack">${sorted.map(([v,n])=>{
+    const color=VCOLS_VISA[v]||'#888';
+    const pct=total?Math.round(n/total*100):0;
+    return `<div class="ov-visa-card" style="--visa-color:${color}" title="${esc(v)}: ${n}">
+      <div class="ov-visa-card-top">
+        <div class="ov-visa-card-label">
+          <span class="ov-visa-dot"></span>
+          <div>
+            <div class="ov-visa-name">${esc(v)}</div>
+            <div class="ov-visa-sub">Active pipeline share</div>
+          </div>
+        </div>
+        <div>
+          <div class="ov-visa-count">${n}</div>
+          <div class="ov-visa-pct">${pct}%</div>
+        </div>
+      </div>
+      <div class="ov-visa-bar"><div class="ov-visa-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('')}</div>`;
 }
 
 function renderOvExpBands(){
