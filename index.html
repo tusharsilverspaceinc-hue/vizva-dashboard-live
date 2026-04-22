@@ -4809,9 +4809,11 @@ function parseTabularRows(rows,src){
     }
     return'';
   };
+  const byIdx=(row,idx)=>String((row||[])[idx]||'').replace(/"/g,'').trim();
   return rows.slice(hi+1).flatMap(row=>{
     const n=g(row,['candidate']); if(!n||n.length<2)return[];
-    return[{n,rec:g(row,['recruiter']),tl:g(row,['team lead','tl']),st:g(row,['status'])||'New',exp:parseInt(g(row,['experience','exp']),10)||0,tech:g(row,['technology','tech','role']),visa:g(row,['visa']).trim(),ead:g(row,['ead end','ead']),expIn:parseInt(g(row,['expiring','expiry']),10)||null,days:parseInt(g(row,['days']),10)||0,loc:g(row,['location','loc']),mkt:g(row,['marketing start','mkt']),email:g(row,['email address','email']),phone:g(row,['phone number','phone']),src,br:bm[src]||src}];
+    const expVal = g(row,['experience','exp','experience (years)','years of experience']) || byIdx(row,4);
+    return[{n,rec:g(row,['recruiter']),tl:g(row,['team lead','tl']),st:g(row,['status'])||'New',exp:parseInt(expVal,10)||0,tech:g(row,['technology','tech','role']),visa:g(row,['visa']).trim(),ead:g(row,['ead end','ead']),expIn:parseInt(g(row,['expiring','expiry']),10)||null,days:parseInt(g(row,['days']),10)||0,loc:g(row,['location','loc']),mkt:g(row,['marketing start','mkt']),email:g(row,['email address','email']),phone:g(row,['phone number','phone']),src,br:bm[src]||src}];
   });
 }
 function parseCSV(text,src){
