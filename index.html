@@ -8515,6 +8515,8 @@ window.renderOverviewAll = function() {
     const css = document.createElement('style');
     css.textContent = `
       /* Soften visual competition between the three KPI strips on Overview */
+      .content{ scroll-behavior: auto !important; }
+      .tb{ backdrop-filter: none !important; }
       #v-overview #kpi-row{ margin-top: 4px; }
       #v-overview #kpi-row .kpi{ padding: 14px 16px; }
       #v-overview #kpi-row .kpi-val{ font-size: 26px; }
@@ -8544,6 +8546,26 @@ window.renderOverviewAll = function() {
       #v-overview .ov-tbl-title{ font-size: 15px; }
       #v-overview thead th{ font-size: 9.5px; padding: 10px 12px; }
       #v-overview tbody td{ font-size: 12.5px; padding: 10px 12px; }
+      #v-overview .panel,
+      #v-overview .hero-card,
+      #v-overview .hero-stat,
+      #v-overview .ov-stat,
+      #v-overview .v12-branch-card,
+      #v-overview .ov-exp-card,
+      #v-overview .ov-visa-card{
+        backdrop-filter: none !important;
+        transform: none !important;
+        backface-visibility: hidden;
+      }
+      #v-overview .panel:hover,
+      #v-overview .hero-stat:hover,
+      #v-overview .ov-stat:hover,
+      #v-overview .v12-branch-card:hover,
+      #v-overview .ov-exp-card:hover,
+      #v-overview .ov-visa-card:hover{
+        transform: none !important;
+        box-shadow: var(--elev-1) !important;
+      }
       /* The "LIVE SNAPSHOT" section header gets more breathing room */
       #v-overview .chart-lib-header{ margin-top: 4px; }
     `;
