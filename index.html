@@ -1771,7 +1771,7 @@ body[data-theme="stripe"] .drw-tabs, body.light .drw-tabs { background: var(--s3
 .v11-filter-pill-x:hover { opacity: 1; }
 
 /* ---- Hide the duplicate Overview KPI row (v10 only toned it, v11 removes it) ---- */
-#v-overview #kpi-row { display: none !important; }
+#v-overview #kpi-row { display: grid !important; }
 
 /* ---- Page-header emoji stripped via ::before trick (safer than editing 60 lines) ---- */
 /* Handled in JS runtime transform — see v11Patches */
@@ -3889,34 +3889,8 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
         </div>
       </div>
     </div>
-
-    <div class="v13-src-sec-card">
-      <div class="v13-src-sec-label">CSV upload (one-time)</div>
-      <div class="v13-src-sec-body">
-        <p>Drop a CSV file to import data for one branch. The branch is detected from the filename (e.g., <code>GGR-data.csv</code>).</p>
-        <div id="upzone" class="v13-upzone" onclick="document.getElementById('fi').click()" ondragover="this.classList.add('drag');event.preventDefault()" ondragleave="this.classList.remove('drag')" ondrop="onDrop(event);this.classList.remove('drag')">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 4v14M8 10l6-6 6 6"/><path d="M4 20v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2"/></svg>
-          <div>
-            <strong>Drag a CSV file here</strong>
-            <span>or click to browse</span>
-          </div>
-        </div>
-        <input type="file" id="fi" accept=".csv" style="display:none" onchange="onFile(event)" multiple>
-        <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
-          <label style="font-size:10px;color:var(--t3);font-weight:600;letter-spacing:.08em;text-transform:uppercase">Branch:</label>
-          <select class="fsel" id="up-src">
-            <option value="auto">Auto-detect from filename</option>
-            <option value="GGR">Force GGR</option>
-            <option value="LKN">Force LKN</option>
-            <option value="AMD">Force AMD</option>
-          </select>
-          <button class="btn btn-ghost btn-sm" onclick="rmExtra()">Remove uploaded CSV</button>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
-
 <div class="view" id="v-access">
   <div class="access-shell">
     <div class="access-hero">
@@ -4231,15 +4205,30 @@ function renderKPIs(targetId,data,context){
   const aging=d.filter(x=>x.days>=170&&x.days<9999&&x.st!=='PO'&&!x.backout).length;
   const recs=[...new Set(d.filter(x=>x.rec).map(x=>x.rec))];
   const over=recs.filter(r=>mkt(r,d)>5).length;
-  const cards=[
+  const isOverview=targetId==='kpi-row'||context==='overview';
+  const cards=isOverview?[
+    {l:'Profiles',v:total,sub:'Total live records',col:'var(--blue)',icon:'📊'},
+    {l:'Recruiters',v:recs.length,sub:'Carrying active pipeline',col:'var(--green)',icon:'👤'},
+    {l:'Aging 170+D',v:aging,sub:'At highest backout risk',col:'var(--orange)',icon:'🔥'},
+    {l:'PO Rate',v:(total?Math.round(po/Math.max(total,1)*100):0)+'%',sub:`${po} placed profiles`,col:'var(--purple)',icon:'🎯'}
+  ]:[
     {l:'Total',v:total,sub:'all branches',col:'var(--blue)'},
     {l:'Active',v:active,sub:Math.round(active/Math.max(total,1)*100)+'% of total',col:'var(--green)'},
     {l:'New',v:nw,sub:'awaiting assign',col:'var(--teal)'},
     {l:'PO Placed',v:po,sub:'excluded from count',col:'var(--purple)'},
     {l:'Aging 178+d',v:aging,sub:'backout risk',col:'var(--orange)'},
-    {l:'Overloaded',v:over,sub:'recruiters >5',col:'var(--amber)'},
+    {l:'Overloaded',v:over,sub:'recruiters >5',col:'var(--amber)'}
   ];
-  document.getElementById(targetId).innerHTML=cards.map(c=>`<div class="kpi"><div class="kpi-bar" style="background:${c.col}"></div><div class="kpi-lbl">${c.l}</div><div class="kpi-val" style="color:${c.col}">${c.v}</div><div class="kpi-sub">${c.sub}</div></div>`).join('');
+  document.getElementById(targetId).innerHTML=cards.map(c=>isOverview
+    ? `<div class="kpi" style="padding:18px 18px 16px;border-radius:18px;box-shadow:0 12px 24px rgba(8,15,32,.08);background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(247,250,255,.96) 100%);border:1px solid rgba(124,142,181,.18);position:relative;overflow:hidden">
+        <div class="kpi-bar" style="background:${c.col};height:3px;top:0;bottom:auto;left:0;right:0"></div>
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px;color:${c.col};font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase">
+          <span style="font-size:13px">${c.icon||''}</span><span>${c.l}</span>
+        </div>
+        <div class="kpi-val" style="color:${c.col};font-size:42px;line-height:1.05">${c.v}</div>
+        <div class="kpi-sub" style="margin-top:10px;font-size:14px;line-height:1.35;color:var(--t3)">${c.sub}</div>
+      </div>`
+    : `<div class="kpi"><div class="kpi-bar" style="background:${c.col}"></div><div class="kpi-lbl">${c.l}</div><div class="kpi-val" style="color:${c.col}">${c.v}</div><div class="kpi-sub">${c.sub}</div></div>`).join('');
 }
 
 // ═══ BRANCH CARDS ═════════════════════════════════════════════════════════
@@ -4248,7 +4237,7 @@ function renderBranchGrid(){
   const bs=[{src:'GGR',col:'var(--blue)',tcol:'var(--blue-l)'},{src:'LKN',col:'var(--teal)',tcol:'var(--teal-l)'},{src:'AMD',col:'var(--amber)',tcol:'var(--amber-l)'}];
   document.getElementById('branch-grid').innerHTML=bs.map(b=>{
     const items=d.filter(x=>x.src===b.src);
-    if(!items.length)return`<div class="bcard" style="opacity:.5"><div class="bcard-name" style="color:var(--t3)">${brName(b.src)} (${b.src})</div><div class="bcard-num" style="color:var(--t3)">—</div><div class="bcard-meta">No data uploaded</div><div class="bcard-status" style="background:var(--s4);color:var(--t3)">PENDING</div></div>`;
+    if(!items.length)return`<div class="bcard" style="opacity:.5"><div class="bcard-name" style="color:var(--t3)">${brName(b.src)} (${b.src})</div><div class="bcard-num" style="color:var(--t3)">—</div><div class="bcard-meta">No live sheet data</div><div class="bcard-status" style="background:var(--s4);color:var(--t3)">PENDING</div></div>`;
     const active=items.filter(x=>x.st==='Active').length,nw=items.filter(x=>x.st==='New').length,po=items.filter(x=>x.st==='PO').length,ag=items.filter(x=>x.days>=170&&x.days<9999&&x.st!=='PO').length;
     const hold=items.filter(x=>x.st==='Hold'||x.st==='Temp Hold').length;
     const recs=[...new Set(items.filter(x=>x.rec).map(x=>x.rec))].length;
@@ -10297,7 +10286,7 @@ window.renderOverviewAll = function() {
             '</div>' +
             '<div class="v12-branch-total" style="color:var(--t3);font-size:20px">—</div>' +
           '</div>' +
-          '<div style="font-size:11.5px;color:var(--t3);padding-top:10px;border-top:1px solid var(--bd)">No data uploaded yet. <strong style="color:var(--blue)">Connect source →</strong></div>' +
+          '<div style="font-size:11.5px;color:var(--t3);padding-top:10px;border-top:1px solid var(--bd)">No live sheet data yet. <strong style="color:var(--blue)">Connect source →</strong></div>' +
         '</div>';
       }
       const active = items.filter(x => x.st === 'Active').length;
@@ -11084,6 +11073,38 @@ window.renderOverviewAll = function() {
 
 })();
 
+</script>
+<script>
+function ovName(x){return String((x && (x.n||x.name||x.candidate)) || '').trim();}
+function ovDays(x){const val=Number.parseInt(x && x.days,10);return Number.isFinite(val)?val:0;}
+function ovVisa(x){return String((x&&x.visa)||'').trim().toUpperCase().replace(/\s+/g,' ');}
+window.renderAtRisk = function() {
+  const el = document.getElementById('ov-atrisk'); if(!el || typeof allData!=='function') return;
+  const d = allData().map(x=>({...x,_days:ovDays(x),_name:ovName(x),_visa:ovVisa(x)})).filter(x=>x._days>=170&&x._days<9999&&!x.backout&&x.st!=='PO').sort((a,b)=>b._days-a._days).slice(0,8);
+  if(!d.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3);font-size:11px">&#127881; No profiles at critical aging risk</div>';return;}
+  el.innerHTML = d.map(x=>{
+    const riskCol = x._days>=250?'#f04040':x._days>=200?'#f07020':'#f5a623';
+    const visaCol = {OPT:'#4f8ef7','STEM OPT':'#10cfa0',H1B:'#a060f5',GC:'#20d870',USC:'#f5a623','H4-EAD':'#f07020','H4 EAD':'#f07020',CPT:'#e040a0'}[x._visa]||'#888';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bd2)"><div style="width:36px;height:36px;border-radius:50%;background:${riskCol}22;border:2px solid ${riskCol}44;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:10px;font-weight:800;color:${riskCol}">${x._days}</span></div><div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(x._name||'—')}</div><div style="font-size:9px;color:var(--t3);margin-top:1px">${esc(x.tech||'—')} · ${esc(x.rec||'Unassigned')}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0"><span style="font-size:8px;font-weight:700;padding:2px 7px;border-radius:99px;background:${visaCol}22;color:${visaCol};border:1px solid ${visaCol}44">${esc(x._visa||'—')}</span><span style="font-size:8px;color:${riskCol};font-weight:700">${x._days}d · ${x.src||'—'}</span></div></div>`;
+  }).join('');
+};
+renderAtRisk = window.renderAtRisk;
+window.renderVisaUrgency = function() {
+  const el = document.getElementById('ov-visa-urgency'); if(!el || typeof allData!=='function') return;
+  const d = allData().map(x=>({...x,_days:ovDays(x),_name:ovName(x),_visa:ovVisa(x)})).filter(x=>['OPT','STEM OPT','CPT','H4-EAD','H4 EAD'].includes(x._visa)&&x.st!=='PO'&&!x.backout);
+  if(!d.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3);font-size:11px">No time-sensitive visa profiles</div>';return;}
+  const sorted = d.sort((a,b)=>{const aExp=Number.parseInt(a.expIn,10),bExp=Number.parseInt(b.expIn,10);const aRisk=Number.isFinite(aExp)&&aExp>0?aExp:-a._days;const bRisk=Number.isFinite(bExp)&&bExp>0?bExp:-b._days;return aRisk-bRisk;}).slice(0,12);
+  const visaCol={'OPT':'#4f8ef7','STEM OPT':'#10cfa0','CPT':'#e040a0','H4-EAD':'#f07020','H4 EAD':'#f07020'};
+  el.innerHTML = sorted.map(x=>{
+    const col=visaCol[x._visa]||'#888';
+    const expIn=Number.parseInt(x.expIn,10);
+    const urgency=(Number.isFinite(expIn)&&expIn>0)?(expIn<=30?'Critical':expIn<=60?'High':expIn<=90?'Medium':'Low'):(x._days>=170?'Critical':x._days>=120?'High':x._days>=60?'Medium':'Low');
+    const urgCol=urgency==='Critical'?'#f04040':urgency==='High'?'#f07020':urgency==='Medium'?'#f5a623':'#20d870';
+    const subNote=(Number.isFinite(expIn)&&expIn>0)?`${expIn}d to expiry`:`${x._days}d in pipeline`;
+    return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd2)"><span style="font-size:8.5px;font-weight:700;padding:2px 7px;border-radius:99px;background:${col}20;color:${col};border:1px solid ${col}44;min-width:52px;text-align:center;flex-shrink:0">${esc(x._visa)}</span><div style="flex:1;min-width:0"><div style="font-size:10px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(x._name||'—')}</div><div style="font-size:8.5px;color:var(--t3)">${esc(x.tech||'—')} · ${esc(x.src||'—')}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-size:9px;font-weight:700;color:${urgCol}">${urgency}</div><div style="font-size:8.5px;color:var(--t3)">${subNote}</div></div></div>`;
+  }).join('');
+};
+renderVisaUrgency = window.renderVisaUrgency;
 </script>
 </body>
 </html>
