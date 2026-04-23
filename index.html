@@ -4689,6 +4689,8 @@ function showProfModal(n,rec){
       <div class="mf"><label>EAD Expiry</label><div class="mfv">${xExp(x.expIn)}</div></div>
       <div class="mf"><label>Marketing Days</label><div class="mfv">${xDays(x.days)}</div></div>
       <div class="mf"><label>Location</label><div class="mfv">${esc(x.loc||'—')}</div></div>
+      <div class="mf"><label>Email ID</label><div class="mfv" style="white-space:normal;overflow-wrap:anywhere;word-break:break-word">${esc(x.email||'—')}</div></div>
+      <div class="mf"><label>Contact Number</label><div class="mfv">${esc(formatPhoneDisplay(x.phone))}</div></div>
     </div>
     <div class="divider"></div>
     <div class="mf"><label>Change Status</label><div class="st-opts">
