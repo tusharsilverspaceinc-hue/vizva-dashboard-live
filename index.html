@@ -6894,6 +6894,81 @@ renderRegTLs=function(){
     </div>`;
   }).join('');
 };
+renderRegRecs=function(){
+  const d=allData();
+  const brFilter=document.getElementById('rf-branch-filter')?.value||'';
+  const tlFilter=document.getElementById('rf-tl-filter')?.value||'';
+  const searchQ=(document.getElementById('rf-search')?.value||'').toLowerCase().trim();
+  const regMap={};
+  getRegRecs().forEach(r=>{regMap[`${r.name}§${r.branch||''}§${r.tl||''}`]=r;});
+  const liveMap={};
+  d.forEach(x=>{
+    const recName=String(x.rec||'').trim();
+    if(!recName) return;
+    const tl=String(x.tl||'').trim();
+    const branch=String(x.src||'GGR').trim();
+    const key=`${recName}§${branch}§${tl}`;
+    if(!liveMap[key]) liveMap[key]={name:recName,tl,branch,email:'',phone:'',doj:'',cat:''};
+  });
+  let combined=Object.entries(liveMap).map(([key,val])=>({...(regMap[key]||{}),...val}));
+  if(brFilter) combined=combined.filter(r=>r.branch===brFilter);
+  if(tlFilter) combined=combined.filter(r=>r.tl===tlFilter);
+  if(searchQ) combined=combined.filter(r=>r.name.toLowerCase().includes(searchQ)||(r.tl||'').toLowerCase().includes(searchQ)||(r.branch||'').toLowerCase().includes(searchQ));
+  const tlSel=document.getElementById('rf-tl-filter');
+  if(tlSel){
+    const current=tlSel.value||'';
+    const tls=[...new Set(Object.values(liveMap).map(r=>r.tl).filter(Boolean))].sort();
+    tlSel.innerHTML='<option value=\"\">All Team Leads</option>'+tls.map(t=>`<option value="${esc(t)}"${t===current?' selected':''}>${esc(t)}</option>`).join('');
+  }
+  const allForStats=Object.values(liveMap);
+  const statsEl=document.getElementById('rec-stats-strip');
+  if(statsEl){
+    const byBranch={GGR:0,LKN:0,AMD:0};
+    allForStats.forEach(r=>{if(r.branch)byBranch[r.branch]=(byBranch[r.branch]||0)+1;});
+    statsEl.innerHTML=[
+      {n:allForStats.length,l:'Live Recruiters',c:'var(--blue)'},
+      {n:byBranch.GGR||0,l:'GGR',c:'var(--blue)'},
+      {n:byBranch.LKN||0,l:'LKN',c:'var(--teal)'},
+      {n:byBranch.AMD||0,l:'AMD',c:'var(--amber)'},
+      {n:[...new Set(allForStats.map(r=>r.tl).filter(Boolean))].length,l:'Team Leads',c:'var(--green)'},
+    ].map(s=>`<div class="rec-stat-card"><div class="rec-stat-num" style="color:${s.c}">${s.n}</div><div class="rec-stat-lbl">${s.l}</div></div>`).join('');
+  }
+  const badge=document.getElementById('rec-total-badge');
+  if(badge) badge.textContent='('+combined.length+' from live sheet)';
+  const body=document.getElementById('reg-rec-body');
+  if(!body) return;
+  if(!combined.length){body.innerHTML='<div class="empty" style="padding:32px">No recruiters found in live sheet data for the current filters.</div>';return;}
+  combined.sort((a,b)=>a.name.localeCompare(b.name)||a.branch.localeCompare(b.branch)||String(a.tl||'').localeCompare(String(b.tl||'')));
+  body.innerHTML=combined.map((r,i)=>{
+    const recName=r.name;
+    const profiles=d.filter(x=>String(x.rec||'').trim()===recName && String(x.src||'GGR')===String(r.branch||'GGR') && String(x.tl||'').trim()===String(r.tl||'').trim());
+    const active=profiles.filter(x=>x.st==='Active'||x.st==='New').length;
+    const po=profiles.filter(x=>x.st==='PO').length;
+    const aging=profiles.filter(x=>x.days>=170&&x.days<9999&&x.st!=='PO'&&!x.backout).length;
+    const maxLoad=5;
+    const wc=active>maxLoad?'var(--red)':active===maxLoad?'var(--green)':'var(--blue)';
+    const {c,ini}=ava(recName,i);
+    return `<div class="rec-table-row">
+      <div class="ava" style="width:28px;height:28px;font-size:9px;background:${c}22;color:${c};flex-shrink:0">${ini}</div>
+      <div>
+        <div style="font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px">${esc(recName)}<span style="font-size:7px;background:var(--s4);color:var(--t3);padding:1px 5px;border-radius:3px">LIVE</span></div>
+        <div style="font-size:9px;color:var(--t3);margin-top:2px">${profiles.length} profiles · ${po} PO${aging>0?' · <span style="color:var(--orange)">&#128293;'+aging+' aging</span>':''}</div>
+      </div>
+      <span style="font-size:10px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.tl||'')}">${esc(r.tl||'—')}</span>
+      <span>${brBadge(r.branch||'GGR')}</span>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:${wc};font-family:'JetBrains Mono',monospace">${active}<span style="font-size:9px;color:var(--t3);font-weight:400">/${maxLoad}</span></div>
+        <div style="height:3px;background:var(--s5);border-radius:2px;margin-top:3px;overflow:hidden"><div style="height:3px;width:${Math.min(active/maxLoad*100,100)}%;background:${wc};border-radius:2px"></div></div>
+      </div>
+      <span style="font-size:9px;color:var(--t3);font-family:'JetBrains Mono',monospace">${esc(r.doj||'—')}</span>
+      <div style="display:flex;align-items:center;gap:6px"><span style="font-size:9px;color:var(--t3)">${esc(r.cat||'—')}</span></div>
+      <div style="display:flex;gap:4px;align-items:center">
+        <button class="btn btn-ghost btn-xs" onclick="showRecModal('${escJ(recName)}')" title="View profiles">&#128065;</button>
+        <button class="btn btn-blue btn-xs" onclick="showAssignModal('${escJ(recName)}')" title="Assign profile">&#43;</button>
+      </div>
+    </div>`;
+  }).join('');
+};
 
 // ── ACTIVITY CHART ────────────────────────────────────────────────────────
 let _actP='day';
