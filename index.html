@@ -4439,6 +4439,7 @@ function saveNewCandidate(){
   const rec=document.getElementById('nc-rec')?.value||'';
   const tl=document.getElementById('nc-tl')?.value||getAllTLs(branch).find(t=>getAllRecs(branch).indexOf(rec)>=0)||'';
   const newProfile={
+    _id:'add_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),
     n:name,rec,tl,src:branch,br:brName(branch),
     st:document.getElementById('nc-status')?.value||'New',
     exp:parseInt(document.getElementById('nc-exp')?.value)||0,
@@ -4469,6 +4470,22 @@ function saveNewCandidate(){
   setTimeout(()=>{el.style.display='none';},5000);
 }
 function clearCandForm(){['nc-name','nc-ead','nc-mkt','nc-loc','nc-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});['nc-tech','nc-visa','nc-rec','nc-tl','nc-status'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=e.options[0]?.value||'';});document.getElementById('nc-exp').value=3;document.getElementById('nc-days').value=0;document.getElementById('nc-rule-check').innerHTML='';document.getElementById('nc-success').style.display='none';}
+function deleteAddedProfile(id){
+  let item=(S.added||[]).find(x=>x._id===id);
+  if(!item && id && id.includes('||')){
+    const [name,addedAt]=id.split('||');
+    item=(S.added||[]).find(x=>x.n===name && String(x._addedAt||'')===String(addedAt||''));
+  }
+  if(!item){toast('Profile not found','amber');return;}
+  if(!confirm(`Delete ${item.n} from the whole dashboard?`)) return;
+  S.added=(S.added||[]).filter(x=>!((x._id&&x._id===item._id) || (!x._id && x.n===item.n && String(x._addedAt||'')===String(item._addedAt||''))));
+  Object.keys(S.status||{}).forEach(k=>{if(String(k).split('§')[0]===item.n) delete S.status[k];});
+  Object.keys(S.backout||{}).forEach(k=>{if(String(k).split('§')[0]===item.n) delete S.backout[k];});
+  S.reassign=(S.reassign||[]).filter(r=>r.n!==item.n);
+  S.log=(S.log||[]).filter(l=>!(l.cand===item.n && /^Added via /.test(l.note||'')));
+  saveS();refreshAll();renderRecentAdded();
+  toast(`${item.n.split(' ')[0]} deleted`,'red');
+}
 function renderRecentAdded(){
   const added=S.added.filter(x=>!x._placeholder).slice(-20).reverse();
   document.getElementById('recent-cnt').textContent=added.length+' recently added';
@@ -4478,6 +4495,16 @@ function renderRecentAdded(){
 }
 
 // ═══ SMART ASSIGN RULES ════════════════════════════════════════════════════
+renderRecentAdded=function(){
+  const added=(S.added||[]).filter(x=>!x._placeholder).slice(-20).reverse();
+  const cntEl=document.getElementById('recent-cnt');
+  const tblEl=document.getElementById('recent-tbl');
+  if(cntEl) cntEl.textContent=added.length+' recently added';
+  if(!tblEl) return;
+  if(!added.length){tblEl.innerHTML='<div class="empty">No candidates added yet</div>';return;}
+  const rows=added.map(d=>`<tr class="r-new"><td>${esc(d.n)}</td><td>${esc(d.rec||'—')}</td><td>${esc(d.tl||'—')}</td><td>${esc(d.tech||'—')}</td><td>${vBadge(d.visa)}</td><td>${stBadge(d.st)}</td><td>${brBadge(d.src)}</td><td style="font-size:9px;color:var(--t3)">${d._addedAt?new Date(d._addedAt).toLocaleString():''}</td><td><button class="btn btn-red btn-xs" onclick="deleteAddedProfile('${escJ(d._id||`${d.n}||${d._addedAt||''}`)}')">Delete</button></td></tr>`).join('');
+  tblEl.innerHTML=`<table><thead><tr><th>Name</th><th>Recruiter</th><th>TL</th><th>Role</th><th>Visa</th><th>Status</th><th>Branch</th><th>Added</th><th>Action</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
 const MAX_TECH=2,MAX_PREM=1,PREM=['USC','GC','H4-EAD'];
 function checkRules(rec,tech,visa,d){
   const items=(d||allData()).filter(x=>x.rec===rec&&x.st!=='PO'&&!x.backout);
@@ -4917,6 +4944,7 @@ function emSaveAndProceed(){
   const vcs    = document.getElementById('em-nc-vcs')?.value || 'VCS';
   // Save to system
   S.added.push({
+    _id:'add_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),
     n:name, rec, tl:'', src:branch, br:brName(branch),
     st:'New', exp, tech, visa, ead, expIn:null, days, loc, mkt, vcs,
     _new:true, _added:true, _addedAt:new Date().toISOString(), notes
