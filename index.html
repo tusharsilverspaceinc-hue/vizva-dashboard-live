@@ -5145,11 +5145,32 @@ function populateATechDropdown(){
     getAllTechs().forEach(t=>{const o=new Option(t,t);sel.add(o);});
   }
 }
+const SOURCES_PAGE_PASSWORD = 'Qwerty@123';
+function hasSourcesAccess(){
+  try { return sessionStorage.getItem('vizva.sources.unlocked') === '1'; } catch(e) { return !!window._vizvaSourcesUnlocked; }
+}
+function setSourcesAccess(ok){
+  try { if(ok) sessionStorage.setItem('vizva.sources.unlocked','1'); } catch(e) {}
+  window._vizvaSourcesUnlocked = !!ok;
+}
+function ensureSourcesAccess(){
+  if(hasSourcesAccess()) return true;
+  const entered = window.prompt('Enter password for Data Sources page');
+  if(entered === null) return false;
+  if(entered === SOURCES_PAGE_PASSWORD){
+    setSourcesAccess(true);
+    window.toast && window.toast('Data Sources unlocked', 'ok');
+    return true;
+  }
+  window.toast && window.toast('Incorrect password', 'red');
+  return false;
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FIX: nav function - updated with categories
 // ═══════════════════════════════════════════════════════════════════════════
 function nav(v){
+  if(v==='sources' && !ensureSourcesAccess()) return;
   if(window._vizvaCurrentView===v)return;
   window._vizvaCurrentView=v;
   VIEWS.forEach(id=>document.getElementById('v-'+id)?.classList.toggle('on',id===v));
