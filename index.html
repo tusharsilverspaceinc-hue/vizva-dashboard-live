@@ -2537,6 +2537,28 @@ tbody tr:hover .v12-row-actions {
   color: var(--t3);
 }
 
+/* ---- Access control page ---- */
+.access-shell{display:flex;flex-direction:column;gap:16px}
+.access-hero{background:linear-gradient(135deg,var(--s2),color-mix(in srgb,var(--teal) 7%,var(--s2)));border:1px solid var(--bd);border-radius:16px;padding:26px 30px;box-shadow:var(--elev-1)}
+.access-hero h2{font-size:22px;font-weight:700;letter-spacing:-.025em;margin-bottom:8px}
+.access-hero p{font-size:13px;color:var(--t2);line-height:1.65;max-width:720px}
+.access-grid{display:grid;grid-template-columns:minmax(320px,420px) 1fr;gap:16px}
+.access-card{background:var(--s2);border:1px solid var(--bd);border-radius:14px;padding:18px 20px;box-shadow:var(--elev-1)}
+.access-card h3{font-size:14px;font-weight:700;margin-bottom:6px}
+.access-card p{font-size:11.5px;color:var(--t3);line-height:1.55;margin-bottom:14px}
+.access-page-list{display:grid;grid-template-columns:repeat(2,minmax(120px,1fr));gap:8px;margin:10px 0 16px}
+.access-page-opt{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--bd);border-radius:10px;background:var(--s3);font-size:11px;color:var(--t2)}
+.access-page-opt input{accent-color:#4f8ef7}
+.access-user-list{display:flex;flex-direction:column;gap:10px}
+.access-user{background:linear-gradient(135deg,color-mix(in srgb,var(--s3) 94%,white 6%),var(--s3));border:1px solid var(--bd);border-radius:12px;padding:14px 15px}
+.access-user-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
+.access-user-email{font-size:13px;font-weight:700;color:var(--t1);word-break:break-word}
+.access-user-meta{font-size:10px;color:var(--t3);margin-top:3px}
+.access-user-pass{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--blue)}
+.access-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.access-tag{font-size:9.5px;font-weight:700;padding:4px 8px;border-radius:999px;background:var(--blue-d);color:var(--blue-l);border:1px solid color-mix(in srgb,var(--blue) 26%,transparent)}
+.access-empty{padding:30px 18px;text-align:center;color:var(--t3);font-size:12px;border:1px dashed var(--bd);border-radius:12px;background:var(--s3)}
+
 /* Branch card for source status */
 .v13-src-card {
   background: var(--s2);
@@ -2924,6 +2946,7 @@ tbody tr:hover .v12-row-actions {
     <div class="nav-sect">Data</div>
     <div class="nav-item" data-view="insights" onclick="nav('insights')" title="Insights (g i)"><svg fill="none" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="6"/><path d="M7 4v3l2 2"/></svg>Insights</div>
     <div class="nav-item" data-view="sources" onclick="nav('sources')" title="Data Sources (g d)"><svg fill="none" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.5"><ellipse cx="7" cy="4" rx="5" ry="2"/><path d="M2 4v3c0 1.1 2.24 2 5 2s5-.9 5-2V4M2 7v3c0 1.1 2.24 2 5 2s5-.9 5-2V7"/></svg>Data Sources</div>
+    <div class="nav-item" data-view="access" onclick="nav('access')" title="Access Control"><svg fill="none" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="10" height="6" rx="1.5"/><path d="M4.5 6V4.5a2.5 2.5 0 0 1 5 0V6"/><circle cx="7" cy="9" r="1"/></svg>Access Control</div>
   </nav>
   <div class="sb-foot">
     <div style="font-size:7.5px;color:var(--t4);font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px">Branch Status</div>
@@ -3765,6 +3788,43 @@ tbody tr:hover .v12-row-actions {
           </select>
           <button class="btn btn-ghost btn-sm" onclick="rmExtra()">Remove uploaded CSV</button>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="view" id="v-access">
+  <div class="access-shell">
+    <div class="access-hero">
+      <div class="v13-src-eyebrow">Access control</div>
+      <h2>Create users and choose which pages they can access.</h2>
+      <p>Add an email ID, generate a password, and choose the pages that should be visible for that user. This is lightweight dashboard-side user management.</p>
+    </div>
+    <div class="access-grid">
+      <div class="access-card">
+        <h3>Create User</h3>
+        <p>Generate credentials and select which pages should be shown to this user.</p>
+        <div class="mf"><label>Email ID</label><input id="access-email" class="fld" type="email" placeholder="name@company.com"></div>
+        <div class="mf">
+          <label>Password</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="access-password" class="fld" type="text" placeholder="Generate password" style="flex:1">
+            <button class="btn btn-ghost btn-sm" onclick="generateAccessPassword()">Generate</button>
+          </div>
+        </div>
+        <div class="mf">
+          <label>Pages To Show</label>
+          <div id="access-page-list" class="access-page-list"></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-blue" onclick="createAccessUser()">Create User</button>
+          <button class="btn btn-ghost" onclick="generateAccessPassword()">Generate New Password</button>
+        </div>
+      </div>
+      <div class="access-card">
+        <h3>Created Users</h3>
+        <p>Review saved users, copy their credentials, or remove them anytime.</p>
+        <div id="access-user-list" class="access-user-list"></div>
       </div>
     </div>
   </div>
@@ -4857,8 +4917,9 @@ function toast(msg,type='blue'){
 }
 
 // ═══ NAV ═══════════════════════════════════════════════════════════════════
-const VIEWS=['overview','analytics','profiles','add-candidate','assign','recruiters','teamleads','alerts','po','insights','sources'];
-const TITLES={overview:'Overview',analytics:'Analytics',profiles:'All Profiles','add-candidate':'Add Candidate',assign:'Smart Assign',recruiters:'Recruiters',teamleads:'Team Leads',alerts:'Alerts & Aging',po:'PO Placements',insights:'Insights',sources:'Data Sources'};
+const VIEWS=['overview','analytics','profiles','add-candidate','assign','recruiters','teamleads','alerts','po','insights','sources','access'];
+const ACCESS_TITLE='Access Control';
+const TITLES={overview:'Overview',analytics:'Analytics',profiles:'All Profiles','add-candidate':'Add Candidate',assign:'Smart Assign',recruiters:'Recruiters',teamleads:'Team Leads',alerts:'Alerts & Aging',po:'PO Placements',insights:'Insights',sources:'Data Sources',access:'Access Control'};
 function onSearch(){const c=VIEWS.find(v=>document.getElementById('v-'+v)?.classList.contains('on'));if(c==='overview')renderOvTable();else if(c==='profiles')renderProfiles();else{nav('profiles');renderProfiles();}}
 
 // ═══ INIT ══════════════════════════════════════════════════════════════════
@@ -5164,6 +5225,14 @@ function ensureSourcesAccess(){
   window.toast && window.toast('Incorrect password', 'red');
   return false;
 }
+const ACCESS_PAGE_OPTIONS=[{id:'overview',label:'Overview'},{id:'analytics',label:'Analytics'},{id:'profiles',label:'Profiles'},{id:'add-candidate',label:'Add Candidate'},{id:'assign',label:'Smart Assign'},{id:'recruiters',label:'Recruiters'},{id:'teamleads',label:'Team Leads'},{id:'alerts',label:'Alerts'},{id:'po',label:'PO Placed'},{id:'insights',label:'Insights'},{id:'sources',label:'Data Sources'}];
+function randomAccessPassword(len){const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';let out='';for(let i=0;i<(len||10);i++)out+=chars[Math.floor(Math.random()*chars.length)];return out;}
+function generateAccessPassword(){const el=document.getElementById('access-password');if(!el)return;el.value=randomAccessPassword(10);}
+function getSelectedAccessPages(){return Array.from(document.querySelectorAll('#access-page-list input[type="checkbox"]:checked')).map(x=>x.value);}
+function renderAccessControl(){const list=document.getElementById('access-page-list'),usersEl=document.getElementById('access-user-list');if(!list||!usersEl)return;const selected=new Set(getSelectedAccessPages());list.innerHTML=ACCESS_PAGE_OPTIONS.map(p=>`<label class="access-page-opt"><input type="checkbox" value="${p.id}" ${selected.size?(selected.has(p.id)?'checked':''):'checked'}><span>${p.label}</span></label>`).join('');const users=(S.accessUsers||[]).slice().reverse();usersEl.innerHTML=users.length?users.map(u=>`<div class="access-user"><div class="access-user-top"><div><div class="access-user-email">${esc(u.email||'')}</div><div class="access-user-meta">Created ${u.createdAt?new Date(u.createdAt).toLocaleString():'Just now'}</div></div><div class="access-user-pass">${esc(u.password||'')}</div></div><div class="access-tags">${(u.pages||[]).map(page=>`<span class="access-tag">${esc(page==='access'?ACCESS_TITLE:(TITLES[page]||page))}</span>`).join('')}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="copyAccessUser('${escJ(u.email||'')}')">Copy Credentials</button><button class="btn btn-red btn-sm" onclick="deleteAccessUser('${escJ(u.id||'')}')">Delete</button></div></div>`).join(''):'<div class="access-empty">No users created yet.</div>';}
+function createAccessUser(){const email=(document.getElementById('access-email')?.value||'').trim(),password=(document.getElementById('access-password')?.value||'').trim(),pages=getSelectedAccessPages();if(!email){toast('Enter email ID','amber');return;}if(!password){toast('Generate or enter a password','amber');return;}if(!pages.length){toast('Select at least one page','amber');return;}if(!S.accessUsers)S.accessUsers=[];S.accessUsers.push({id:'usr_'+Date.now(),email,password,pages,createdAt:new Date().toISOString()});saveS();document.getElementById('access-email').value='';document.getElementById('access-password').value='';renderAccessControl();toast('User created','ok');}
+function deleteAccessUser(id){if(!confirm('Delete this user?'))return;S.accessUsers=(S.accessUsers||[]).filter(u=>u.id!==id);saveS();renderAccessControl();toast('User removed','amber');}
+function copyAccessUser(email){const u=(S.accessUsers||[]).find(x=>x.email===email);if(!u)return;const text=`Email: ${u.email}\nPassword: ${u.password}\nPages: ${(u.pages||[]).map(p=>p==='access'?ACCESS_TITLE:(TITLES[p]||p)).join(', ')}`;if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>toast('Credentials copied','ok'));}}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FIX: nav function - updated with categories
@@ -5175,6 +5244,7 @@ function nav(v){
   VIEWS.forEach(id=>document.getElementById('v-'+id)?.classList.toggle('on',id===v));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('on'));
   const idx={overview:0,analytics:1,profiles:2,assign:3,'add-candidate':4,recruiters:5,teamleads:6,alerts:7,po:8,insights:9,sources:10};
+  idx.access=11;
   const items=document.querySelectorAll('.nav-item');if(items[idx[v]])items[idx[v]].classList.add('on');
   document.getElementById('pg-title').textContent=TITLES[v]||v;
   if(window._vizvaNavRenderTimer) clearTimeout(window._vizvaNavRenderTimer);
@@ -5191,6 +5261,7 @@ function nav(v){
     if(v==='po')renderPO();
     if(v==='insights')renderInsights();
     if(v==='sources')renderSources();
+    if(v==='access')renderAccessControl();
   },0);
 }
 
@@ -5207,6 +5278,7 @@ function refreshAll(){
   if(c2==='alerts')renderAlerts();
   if(c2==='po')renderPO();
   if(c2==='sources')renderSources();
+  if(c2==='access')renderAccessControl();
   if(c2==='add-candidate')renderRecentAdded();
   if(c2==='assign')renderLog();
   if(c2==='insights')renderInsights();
