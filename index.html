@@ -4220,13 +4220,13 @@ function renderKPIs(targetId,data,context){
     {l:'Overloaded',v:over,sub:'recruiters >5',col:'var(--amber)'}
   ];
   document.getElementById(targetId).innerHTML=cards.map(c=>isOverview
-    ? `<div class="kpi" style="padding:18px 18px 16px;border-radius:18px;box-shadow:0 12px 24px rgba(8,15,32,.08);background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(247,250,255,.96) 100%);border:1px solid rgba(124,142,181,.18);position:relative;overflow:hidden">
-        <div class="kpi-bar" style="background:${c.col};height:3px;top:0;bottom:auto;left:0;right:0"></div>
+    ? `<div class="kpi" style="padding:18px 18px 16px;border-radius:18px;box-shadow:0 16px 28px rgba(0,0,0,.24);background:linear-gradient(180deg,rgba(16,20,32,.96) 0%,rgba(21,26,40,.98) 100%);border:1px solid rgba(255,255,255,.08);position:relative;overflow:hidden">
+        <div class="kpi-bar" style="background:${c.col};height:3px;top:0;bottom:auto;left:0;right:0;box-shadow:0 0 16px ${c.col}66"></div>
         <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px;color:${c.col};font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase">
-          <span style="font-size:13px">${c.icon||''}</span><span>${c.l}</span>
+          <span style="font-size:13px;filter:saturate(1.1)">${c.icon||''}</span><span>${c.l}</span>
         </div>
-        <div class="kpi-val" style="color:${c.col};font-size:42px;line-height:1.05">${c.v}</div>
-        <div class="kpi-sub" style="margin-top:10px;font-size:14px;line-height:1.35;color:var(--t3)">${c.sub}</div>
+        <div class="kpi-val" style="color:${c.col};font-size:42px;line-height:1.05;text-shadow:0 0 18px ${c.col}22">${c.v}</div>
+        <div class="kpi-sub" style="margin-top:10px;font-size:14px;line-height:1.35;color:rgba(226,232,240,.82)">${c.sub}</div>
       </div>`
     : `<div class="kpi"><div class="kpi-bar" style="background:${c.col}"></div><div class="kpi-lbl">${c.l}</div><div class="kpi-val" style="color:${c.col}">${c.v}</div><div class="kpi-sub">${c.sub}</div></div>`).join('');
 }
