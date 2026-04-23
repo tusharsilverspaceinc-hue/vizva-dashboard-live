@@ -5147,10 +5147,9 @@ function populateATechDropdown(){
 }
 const SOURCES_PAGE_PASSWORD = 'Qwerty@123';
 function hasSourcesAccess(){
-  try { return sessionStorage.getItem('vizva.sources.unlocked') === '1'; } catch(e) { return !!window._vizvaSourcesUnlocked; }
+  return !!window._vizvaSourcesUnlocked;
 }
 function setSourcesAccess(ok){
-  try { if(ok) sessionStorage.setItem('vizva.sources.unlocked','1'); } catch(e) {}
   window._vizvaSourcesUnlocked = !!ok;
 }
 function ensureSourcesAccess(){
