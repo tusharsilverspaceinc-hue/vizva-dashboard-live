@@ -2613,6 +2613,9 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
   box-shadow:0 0 0 4px color-mix(in srgb,var(--blue) 14%, transparent)
 }
 .admin-auth-field input::placeholder{color:var(--t4);font-weight:500}
+.admin-auth-passrow{display:flex;gap:10px;align-items:center}
+.admin-auth-passrow input{flex:1}
+.admin-auth-toggle{height:48px;padding:0 14px;border-radius:14px;border:1px solid color-mix(in srgb,var(--blue) 14%, var(--bd));background:color-mix(in srgb,var(--s3) 92%, black 8%);color:var(--t2);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
 .admin-auth-note{font-size:11px;color:var(--t3);margin-top:12px}
 .admin-auth-error{min-height:18px;font-size:11px;font-weight:700;color:#ff8f8f;margin-top:10px}
 .admin-auth-actions{display:flex;gap:10px;align-items:center;margin-top:14px}
@@ -3033,11 +3036,14 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
       <div class="admin-auth-fields">
         <div class="admin-auth-field">
           <label>Email ID</label>
-          <input id="admin-email" placeholder="admin@vizvainc.com" autocomplete="username" />
+          <input id="admin-email" placeholder="name@company.com" autocomplete="username" oninput="updateAuthIdentityHint()" />
         </div>
         <div class="admin-auth-field">
           <label>Password</label>
-          <input id="admin-password" type="password" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuthLogin()" />
+          <div class="admin-auth-passrow">
+            <input id="admin-password" type="password" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuthLogin()" />
+            <button type="button" class="admin-auth-toggle" onclick="toggleAuthPassword()">Show</button>
+          </div>
         </div>
       </div>
       <div class="admin-auth-actions">
@@ -3045,8 +3051,8 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
       </div>
       <div class="admin-auth-error" id="admin-auth-error"></div>
       <div class="admin-auth-help">
-        <strong>Default Admin</strong>
-        <code>admin@vizvainc.com</code>
+        <strong id="admin-auth-help-label">User Name</strong>
+        <code id="admin-auth-help-value">Enter your email to continue</code>
       </div>
     </div>
   </div>
@@ -3932,6 +3938,7 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
       <div class="access-card">
         <h3>Create User</h3>
         <p>Generate credentials and select which pages should be shown to this user.</p>
+        <div class="mf"><label>User Name</label><input id="access-name" class="fld" type="text" placeholder="Enter user name"></div>
         <div class="mf"><label>Email ID</label><input id="access-email" class="fld" type="email" placeholder="name@company.com"></div>
         <div class="mf">
           <label>Password</label>
@@ -5364,18 +5371,22 @@ function ensureSourcesAccess(){
 }
 const ADMIN_EMAIL='admin@vizvainc.com';
 const ADMIN_PASSWORD='Tushar@123';
+const ADMIN_NAME='Tushar';
 const ACCESS_BRANCH_OPTIONS=[{id:'GGR',label:'GGR'},{id:'LKN',label:'LKN'},{id:'AMD',label:'AMD'}];
 function normalizeAuthEmail(v){return String(v||'').trim().toLowerCase();}
+function displayNameFromEmail(email){const local=normalizeAuthEmail(email).split('@')[0]||'User';return local.split(/[._-]+/).filter(Boolean).map(s=>s.charAt(0).toUpperCase()+s.slice(1)).join(' ')||'User';}
+function findStoredUserByEmail(email){const normEmail=normalizeAuthEmail(email);if(!normEmail)return null;if(normEmail===ADMIN_EMAIL)return {name:ADMIN_NAME,email:ADMIN_EMAIL,role:'admin'};return ((S&&S.accessUsers)||[]).find(u=>normalizeAuthEmail(u.email)===normEmail)||null;}
 function getAuthUsers(){
   const extra=((S&&S.accessUsers)||[]).map(u=>({
     id:u.id||('usr_'+normalizeAuthEmail(u.email)),
     role:'user',
+    name:(u.name||displayNameFromEmail(u.email)||'User').trim(),
     email:normalizeAuthEmail(u.email),
     password:String(u.password||'').trim(),
     views:Array.from(new Set((u.pages||[]).filter(p=>VIEWS.includes(p) && p!=='access'))),
     branches:Array.from(new Set(((u.branches&&u.branches.length)?u.branches:ACCESS_BRANCH_OPTIONS.map(opt=>opt.id)).filter(b=>ACCESS_BRANCH_OPTIONS.some(opt=>opt.id===b))))
   })).filter(u=>u.email && u.password);
-  return [{id:'admin',role:'admin',email:ADMIN_EMAIL,password:ADMIN_PASSWORD,views:VIEWS.slice()}].concat(extra);
+  return [{id:'admin',role:'admin',name:ADMIN_NAME,email:ADMIN_EMAIL,password:ADMIN_PASSWORD,views:VIEWS.slice()}].concat(extra);
 }
 function getAuthUserByCredentials(email,password){
   const normEmail=normalizeAuthEmail(email), pass=String(password||'').trim();
@@ -5438,11 +5449,35 @@ function setAdminLockState(locked){
       const errorEl=document.getElementById('admin-auth-error');
       if(errorEl) errorEl.textContent='';
       if(emailEl && !emailEl.value) emailEl.value=ADMIN_EMAIL;
+      updateAuthIdentityHint();
       (passEl||emailEl)?.focus();
     },30);
   }else{
     applyAuthViewAccess();
   }
+}
+function updateAuthIdentityHint(){
+  const email=(document.getElementById('admin-email')?.value||'').trim();
+  const label=document.getElementById('admin-auth-help-label');
+  const value=document.getElementById('admin-auth-help-value');
+  if(!label||!value) return;
+  if(!email){
+    label.textContent='User Name';
+    value.textContent='Enter your email to continue';
+    return;
+  }
+  const found=findStoredUserByEmail(email);
+  const name=((found&&found.name)||displayNameFromEmail(email)||'User').trim();
+  label.textContent='User Name';
+  value.textContent=name;
+}
+function toggleAuthPassword(){
+  const input=document.getElementById('admin-password');
+  const btn=document.querySelector('.admin-auth-toggle');
+  if(!input||!btn) return;
+  const show=input.type==='password';
+  input.type=show?'text':'password';
+  btn.textContent=show?'Hide':'Show';
 }
 function submitAuthLogin(){
   const email=(document.getElementById('admin-email')?.value||'').trim().toLowerCase();
@@ -5473,10 +5508,10 @@ function randomAccessPassword(len){const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefgh
 function generateAccessPassword(){const el=document.getElementById('access-password');if(!el)return;el.value=randomAccessPassword(10);}
 function getSelectedAccessPages(){return Array.from(document.querySelectorAll('#access-page-list input[type="checkbox"]:checked')).map(x=>x.value);}
 function getSelectedAccessBranches(){return Array.from(document.querySelectorAll('#access-branch-list input[type="checkbox"]:checked')).map(x=>x.value);}
-function renderAccessControl(){const list=document.getElementById('access-page-list'),branchList=document.getElementById('access-branch-list'),usersEl=document.getElementById('access-user-list');if(!list||!branchList||!usersEl)return;const selected=new Set(getSelectedAccessPages()),selectedBranches=new Set(getSelectedAccessBranches());list.innerHTML=ACCESS_PAGE_OPTIONS.map(p=>`<label class="access-page-opt"><input type="checkbox" value="${p.id}" ${selected.size?(selected.has(p.id)?'checked':''):'checked'}><span>${p.label}</span></label>`).join('');branchList.innerHTML=ACCESS_BRANCH_OPTIONS.map(b=>`<label class="access-page-opt"><input type="checkbox" value="${b.id}" ${selectedBranches.size?(selectedBranches.has(b.id)?'checked':''):'checked'}><span>${b.label}</span></label>`).join('');const users=(S.accessUsers||[]).slice().reverse();usersEl.innerHTML=users.length?users.map(u=>`<div class="access-user"><div class="access-user-top"><div><div class="access-user-email">${esc(u.email||'')}</div><div class="access-user-meta">Created ${u.createdAt?new Date(u.createdAt).toLocaleString():'Just now'}</div></div><div class="access-user-pass">${esc(u.password||'')}</div></div><div class="access-tags">${(u.pages||[]).map(page=>`<span class="access-tag">${esc(page==='access'?ACCESS_TITLE:(TITLES[page]||page))}</span>`).join('')}${(u.branches||[]).map(branch=>`<span class="access-tag">${esc(branch)} Data</span>`).join('')}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="copyAccessUser('${escJ(u.email||'')}')">Copy Credentials</button><button class="btn btn-red btn-sm" onclick="deleteAccessUser('${escJ(u.id||'')}')">Delete</button></div></div>`).join(''):'<div class="access-empty">No users created yet.</div>';}
-function createAccessUser(){const emailRaw=(document.getElementById('access-email')?.value||'').trim(),email=normalizeAuthEmail(emailRaw),password=(document.getElementById('access-password')?.value||'').trim(),pages=Array.from(new Set(getSelectedAccessPages())),branches=Array.from(new Set(getSelectedAccessBranches()));if(!email){toast('Enter email ID','amber');return;}if(email===ADMIN_EMAIL){toast('This email is reserved for admin','amber');return;}if(!password){toast('Generate or enter a password','amber');return;}if(!pages.length){toast('Select at least one page','amber');return;}if(!branches.length){toast('Select at least one branch','amber');return;}if(!S.accessUsers)S.accessUsers=[];const existing=(S.accessUsers||[]).find(u=>normalizeAuthEmail(u.email)===email);if(existing){existing.email=email;existing.password=password;existing.pages=pages;existing.branches=branches;existing.updatedAt=new Date().toISOString();saveS();document.getElementById('access-email').value='';document.getElementById('access-password').value='';renderAccessControl();toast('User updated','ok');return;}S.accessUsers.push({id:'usr_'+Date.now(),email,password,pages,branches,createdAt:new Date().toISOString()});saveS();document.getElementById('access-email').value='';document.getElementById('access-password').value='';renderAccessControl();toast('User created','ok');}
+function renderAccessControl(){const list=document.getElementById('access-page-list'),branchList=document.getElementById('access-branch-list'),usersEl=document.getElementById('access-user-list');if(!list||!branchList||!usersEl)return;const selected=new Set(getSelectedAccessPages()),selectedBranches=new Set(getSelectedAccessBranches());list.innerHTML=ACCESS_PAGE_OPTIONS.map(p=>`<label class="access-page-opt"><input type="checkbox" value="${p.id}" ${selected.size?(selected.has(p.id)?'checked':''):'checked'}><span>${p.label}</span></label>`).join('');branchList.innerHTML=ACCESS_BRANCH_OPTIONS.map(b=>`<label class="access-page-opt"><input type="checkbox" value="${b.id}" ${selectedBranches.size?(selectedBranches.has(b.id)?'checked':''):'checked'}><span>${b.label}</span></label>`).join('');const users=(S.accessUsers||[]).slice().reverse();usersEl.innerHTML=users.length?users.map(u=>`<div class="access-user"><div class="access-user-top"><div><div class="access-user-email">${esc((u.name||displayNameFromEmail(u.email)||'User'))}</div><div class="access-user-meta">${esc(u.email||'')} · ${u.createdAt?new Date(u.createdAt).toLocaleString():'Just now'}</div></div><div class="access-user-pass">${esc(u.password||'')}</div></div><div class="access-tags">${(u.pages||[]).map(page=>`<span class="access-tag">${esc(page==='access'?ACCESS_TITLE:(TITLES[page]||page))}</span>`).join('')}${(u.branches||[]).map(branch=>`<span class="access-tag">${esc(branch)} Data</span>`).join('')}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="copyAccessUser('${escJ(u.email||'')}')">Copy Credentials</button><button class="btn btn-red btn-sm" onclick="deleteAccessUser('${escJ(u.id||'')}')">Delete</button></div></div>`).join(''):'<div class="access-empty">No users created yet.</div>';}
+function createAccessUser(){const name=(document.getElementById('access-name')?.value||'').trim(),emailRaw=(document.getElementById('access-email')?.value||'').trim(),email=normalizeAuthEmail(emailRaw),password=(document.getElementById('access-password')?.value||'').trim(),pages=Array.from(new Set(getSelectedAccessPages())),branches=Array.from(new Set(getSelectedAccessBranches()));if(!name){toast('Enter user name','amber');return;}if(!email){toast('Enter email ID','amber');return;}if(email===ADMIN_EMAIL){toast('This email is reserved for admin','amber');return;}if(!password){toast('Generate or enter a password','amber');return;}if(!pages.length){toast('Select at least one page','amber');return;}if(!branches.length){toast('Select at least one branch','amber');return;}if(!S.accessUsers)S.accessUsers=[];const existing=(S.accessUsers||[]).find(u=>normalizeAuthEmail(u.email)===email);if(existing){existing.name=name;existing.email=email;existing.password=password;existing.pages=pages;existing.branches=branches;existing.updatedAt=new Date().toISOString();saveS();document.getElementById('access-name').value='';document.getElementById('access-email').value='';document.getElementById('access-password').value='';renderAccessControl();toast('User updated','ok');return;}S.accessUsers.push({id:'usr_'+Date.now(),name,email,password,pages,branches,createdAt:new Date().toISOString()});saveS();document.getElementById('access-name').value='';document.getElementById('access-email').value='';document.getElementById('access-password').value='';renderAccessControl();toast('User created','ok');}
 function deleteAccessUser(id){if(!confirm('Delete this user?'))return;S.accessUsers=(S.accessUsers||[]).filter(u=>u.id!==id);saveS();renderAccessControl();toast('User removed','amber');}
-function copyAccessUser(email){const u=(S.accessUsers||[]).find(x=>x.email===email);if(!u)return;const text=`Email: ${u.email}\nPassword: ${u.password}\nPages: ${(u.pages||[]).map(p=>p==='access'?ACCESS_TITLE:(TITLES[p]||p)).join(', ')}\nBranches: ${(u.branches||[]).join(', ')}`;if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>toast('Credentials copied','ok'));}}
+function copyAccessUser(email){const u=(S.accessUsers||[]).find(x=>x.email===email);if(!u)return;const text=`Name: ${(u.name||displayNameFromEmail(u.email)||'User')}\nEmail: ${u.email}\nPassword: ${u.password}\nPages: ${(u.pages||[]).map(p=>p==='access'?ACCESS_TITLE:(TITLES[p]||p)).join(', ')}\nBranches: ${(u.branches||[]).join(', ')}`;if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>toast('Credentials copied','ok'));}}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FIX: nav function - updated with categories
