@@ -2547,6 +2547,7 @@ tbody tr:hover .v12-row-actions {
 .access-card h3{font-size:14px;font-weight:700;margin-bottom:6px}
 .access-card p{font-size:11.5px;color:var(--t3);line-height:1.55;margin-bottom:14px}
 .access-page-list{display:grid;grid-template-columns:repeat(2,minmax(120px,1fr));gap:8px;margin:10px 0 16px}
+.access-branch-list{display:grid;grid-template-columns:repeat(3,minmax(90px,1fr));gap:8px;margin:10px 0 16px}
 .access-page-opt{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--bd);border-radius:10px;background:var(--s3);font-size:11px;color:var(--t2)}
 .access-page-opt input{accent-color:#4f8ef7}
 .access-user-list{display:flex;flex-direction:column;gap:10px}
@@ -3943,6 +3944,10 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
           <label>Pages To Show</label>
           <div id="access-page-list" class="access-page-list"></div>
         </div>
+        <div class="mf">
+          <label>Branches To Show</label>
+          <div id="access-branch-list" class="access-branch-list"></div>
+        </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn btn-blue" onclick="createAccessUser()">Create User</button>
           <button class="btn btn-ghost" onclick="generateAccessPassword()">Generate New Password</button>
@@ -4097,7 +4102,7 @@ function allData(){
   Object.entries(S.extra).forEach(([src,arr])=>{
     if(!sheetBranches.has(src)) arr.forEach(d=>rows.push({...d,src}));
   });
-  return rows.filter(d=>!d._placeholder).map(d=>{
+  let out=rows.filter(d=>!d._placeholder).map(d=>{
     const k=key(d);
     const st=S.status[k];
     const bo=S.backout[k];
@@ -4106,6 +4111,11 @@ function allData(){
     const tlOv=newRec?null:S.tlMap[d.rec||''];
     return {...d,st:st||d.st,backout:bo||null,rec:newRec||d.rec,tl:tlOv||d.tl,_changed:!!(st||bo||newRec)};
   });
+  const allowedBranches=getAuthorizedBranches?.()||[];
+  if(window._vizvaAuthUser && window._vizvaAuthUser.role!=='admin' && allowedBranches.length){
+    out=out.filter(d=>allowedBranches.includes(d.src||'GGR'));
+  }
+  return out;
 }
 function key(d){return (d.n||'')+'§'+(d.rec||'');}
 function mkt(rec,data){return (data||allData()).filter(d=>d.rec===rec&&d.st!=='PO'&&d.st!=='Hold'&&d.st!=='Temp Hold'&&!d.backout).length;}
@@ -5354,6 +5364,7 @@ function ensureSourcesAccess(){
 }
 const ADMIN_EMAIL='admin@vizvainc.com';
 const ADMIN_PASSWORD='Tushar@123';
+const ACCESS_BRANCH_OPTIONS=[{id:'GGR',label:'GGR'},{id:'LKN',label:'LKN'},{id:'AMD',label:'AMD'}];
 function normalizeAuthEmail(v){return String(v||'').trim().toLowerCase();}
 function getAuthUsers(){
   const extra=((S&&S.accessUsers)||[]).map(u=>({
@@ -5361,7 +5372,8 @@ function getAuthUsers(){
     role:'user',
     email:normalizeAuthEmail(u.email),
     password:String(u.password||'').trim(),
-    views:Array.from(new Set((u.pages||[]).filter(p=>VIEWS.includes(p) && p!=='access')))
+    views:Array.from(new Set((u.pages||[]).filter(p=>VIEWS.includes(p) && p!=='access'))),
+    branches:Array.from(new Set(((u.branches&&u.branches.length)?u.branches:ACCESS_BRANCH_OPTIONS.map(opt=>opt.id)).filter(b=>ACCESS_BRANCH_OPTIONS.some(opt=>opt.id===b))))
   })).filter(u=>u.email && u.password);
   return [{id:'admin',role:'admin',email:ADMIN_EMAIL,password:ADMIN_PASSWORD,views:VIEWS.slice()}].concat(extra);
 }
@@ -5374,18 +5386,40 @@ function getAuthorizedViews(){
   if(!u) return [];
   return u.role==='admin' ? VIEWS.slice() : Array.from(new Set((u.views||[]).filter(v=>VIEWS.includes(v) && v!=='access')));
 }
+function getAuthorizedBranches(){
+  const u=window._vizvaAuthUser;
+  if(!u) return [];
+  return u.role==='admin' ? ACCESS_BRANCH_OPTIONS.map(x=>x.id) : Array.from(new Set((u.branches||[]).filter(b=>ACCESS_BRANCH_OPTIONS.some(opt=>opt.id===b))));
+}
 function getDefaultAuthorizedView(){
   const allowed=getAuthorizedViews();
   if(!allowed.length) return 'overview';
   return allowed.includes('overview') ? 'overview' : allowed[0];
 }
 function canAccessView(v){return getAuthorizedViews().includes(v);}
+function canAccessBranch(b){return getAuthorizedBranches().includes(b);}
+function applyAuthBranchOptions(){
+  const allowed=new Set(getAuthorizedBranches());
+  document.querySelectorAll('select').forEach(sel=>{
+    const branchOptions=Array.from(sel.options||[]).filter(opt=>ACCESS_BRANCH_OPTIONS.some(x=>x.id===opt.value));
+    if(!branchOptions.length) return;
+    branchOptions.forEach(opt=>{
+      const show=allowed.has(opt.value);
+      opt.disabled=!show;
+      opt.hidden=!show;
+    });
+    if(sel.value && !allowed.has(sel.value)){
+      sel.value = sel.querySelector('option:not([disabled])')?.value || '';
+    }
+  });
+}
 function applyAuthViewAccess(){
   const allowed=new Set(getAuthorizedViews());
   document.querySelectorAll('.nav-item[data-view], .mnav-item[data-view]').forEach(el=>{
     const show=allowed.has(el.dataset.view);
     el.style.display=show?'':'none';
   });
+  applyAuthBranchOptions();
   if(window._vizvaAuthUser){
     const next=getDefaultAuthorizedView();
     if(!canAccessView(window._vizvaCurrentView||'')) window._vizvaCurrentView='';
@@ -5438,10 +5472,11 @@ const ACCESS_PAGE_OPTIONS=[{id:'overview',label:'Overview'},{id:'analytics',labe
 function randomAccessPassword(len){const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';let out='';for(let i=0;i<(len||10);i++)out+=chars[Math.floor(Math.random()*chars.length)];return out;}
 function generateAccessPassword(){const el=document.getElementById('access-password');if(!el)return;el.value=randomAccessPassword(10);}
 function getSelectedAccessPages(){return Array.from(document.querySelectorAll('#access-page-list input[type="checkbox"]:checked')).map(x=>x.value);}
-function renderAccessControl(){const list=document.getElementById('access-page-list'),usersEl=document.getElementById('access-user-list');if(!list||!usersEl)return;const selected=new Set(getSelectedAccessPages());list.innerHTML=ACCESS_PAGE_OPTIONS.map(p=>`<label class="access-page-opt"><input type="checkbox" value="${p.id}" ${selected.size?(selected.has(p.id)?'checked':''):'checked'}><span>${p.label}</span></label>`).join('');const users=(S.accessUsers||[]).slice().reverse();usersEl.innerHTML=users.length?users.map(u=>`<div class="access-user"><div class="access-user-top"><div><div class="access-user-email">${esc(u.email||'')}</div><div class="access-user-meta">Created ${u.createdAt?new Date(u.createdAt).toLocaleString():'Just now'}</div></div><div class="access-user-pass">${esc(u.password||'')}</div></div><div class="access-tags">${(u.pages||[]).map(page=>`<span class="access-tag">${esc(page==='access'?ACCESS_TITLE:(TITLES[page]||page))}</span>`).join('')}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="copyAccessUser('${escJ(u.email||'')}')">Copy Credentials</button><button class="btn btn-red btn-sm" onclick="deleteAccessUser('${escJ(u.id||'')}')">Delete</button></div></div>`).join(''):'<div class="access-empty">No users created yet.</div>';}
-function createAccessUser(){const emailRaw=(document.getElementById('access-email')?.value||'').trim(),email=normalizeAuthEmail(emailRaw),password=(document.getElementById('access-password')?.value||'').trim(),pages=Array.from(new Set(getSelectedAccessPages()));if(!email){toast('Enter email ID','amber');return;}if(email===ADMIN_EMAIL){toast('This email is reserved for admin','amber');return;}if(!password){toast('Generate or enter a password','amber');return;}if(!pages.length){toast('Select at least one page','amber');return;}if(!S.accessUsers)S.accessUsers=[];const existing=(S.accessUsers||[]).find(u=>normalizeAuthEmail(u.email)===email);if(existing){existing.email=email;existing.password=password;existing.pages=pages;existing.updatedAt=new Date().toISOString();saveS();document.getElementById('access-email').value='';document.getElementById('access-password').value='';renderAccessControl();toast('User updated','ok');return;}S.accessUsers.push({id:'usr_'+Date.now(),email,password,pages,createdAt:new Date().toISOString()});saveS();document.getElementById('access-email').value='';document.getElementById('access-password').value='';renderAccessControl();toast('User created','ok');}
+function getSelectedAccessBranches(){return Array.from(document.querySelectorAll('#access-branch-list input[type="checkbox"]:checked')).map(x=>x.value);}
+function renderAccessControl(){const list=document.getElementById('access-page-list'),branchList=document.getElementById('access-branch-list'),usersEl=document.getElementById('access-user-list');if(!list||!branchList||!usersEl)return;const selected=new Set(getSelectedAccessPages()),selectedBranches=new Set(getSelectedAccessBranches());list.innerHTML=ACCESS_PAGE_OPTIONS.map(p=>`<label class="access-page-opt"><input type="checkbox" value="${p.id}" ${selected.size?(selected.has(p.id)?'checked':''):'checked'}><span>${p.label}</span></label>`).join('');branchList.innerHTML=ACCESS_BRANCH_OPTIONS.map(b=>`<label class="access-page-opt"><input type="checkbox" value="${b.id}" ${selectedBranches.size?(selectedBranches.has(b.id)?'checked':''):'checked'}><span>${b.label}</span></label>`).join('');const users=(S.accessUsers||[]).slice().reverse();usersEl.innerHTML=users.length?users.map(u=>`<div class="access-user"><div class="access-user-top"><div><div class="access-user-email">${esc(u.email||'')}</div><div class="access-user-meta">Created ${u.createdAt?new Date(u.createdAt).toLocaleString():'Just now'}</div></div><div class="access-user-pass">${esc(u.password||'')}</div></div><div class="access-tags">${(u.pages||[]).map(page=>`<span class="access-tag">${esc(page==='access'?ACCESS_TITLE:(TITLES[page]||page))}</span>`).join('')}${(u.branches||[]).map(branch=>`<span class="access-tag">${esc(branch)} Data</span>`).join('')}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="copyAccessUser('${escJ(u.email||'')}')">Copy Credentials</button><button class="btn btn-red btn-sm" onclick="deleteAccessUser('${escJ(u.id||'')}')">Delete</button></div></div>`).join(''):'<div class="access-empty">No users created yet.</div>';}
+function createAccessUser(){const emailRaw=(document.getElementById('access-email')?.value||'').trim(),email=normalizeAuthEmail(emailRaw),password=(document.getElementById('access-password')?.value||'').trim(),pages=Array.from(new Set(getSelectedAccessPages())),branches=Array.from(new Set(getSelectedAccessBranches()));if(!email){toast('Enter email ID','amber');return;}if(email===ADMIN_EMAIL){toast('This email is reserved for admin','amber');return;}if(!password){toast('Generate or enter a password','amber');return;}if(!pages.length){toast('Select at least one page','amber');return;}if(!branches.length){toast('Select at least one branch','amber');return;}if(!S.accessUsers)S.accessUsers=[];const existing=(S.accessUsers||[]).find(u=>normalizeAuthEmail(u.email)===email);if(existing){existing.email=email;existing.password=password;existing.pages=pages;existing.branches=branches;existing.updatedAt=new Date().toISOString();saveS();document.getElementById('access-email').value='';document.getElementById('access-password').value='';renderAccessControl();toast('User updated','ok');return;}S.accessUsers.push({id:'usr_'+Date.now(),email,password,pages,branches,createdAt:new Date().toISOString()});saveS();document.getElementById('access-email').value='';document.getElementById('access-password').value='';renderAccessControl();toast('User created','ok');}
 function deleteAccessUser(id){if(!confirm('Delete this user?'))return;S.accessUsers=(S.accessUsers||[]).filter(u=>u.id!==id);saveS();renderAccessControl();toast('User removed','amber');}
-function copyAccessUser(email){const u=(S.accessUsers||[]).find(x=>x.email===email);if(!u)return;const text=`Email: ${u.email}\nPassword: ${u.password}\nPages: ${(u.pages||[]).map(p=>p==='access'?ACCESS_TITLE:(TITLES[p]||p)).join(', ')}`;if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>toast('Credentials copied','ok'));}}
+function copyAccessUser(email){const u=(S.accessUsers||[]).find(x=>x.email===email);if(!u)return;const text=`Email: ${u.email}\nPassword: ${u.password}\nPages: ${(u.pages||[]).map(p=>p==='access'?ACCESS_TITLE:(TITLES[p]||p)).join(', ')}\nBranches: ${(u.branches||[]).join(', ')}`;if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>toast('Credentials copied','ok'));}}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FIX: nav function - updated with categories
