@@ -4059,6 +4059,8 @@ const DEFAULT_GGR_SHEET_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ
 const DEFAULT_LKN_SHEET_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5c9qNYGNCZ6Wzgxy1kdmuWdpyFnxbWr0_gRObDLetfGXQ2iph8dhYzcR_EKE5K0eilhAA63lz3Cbj/pub?output=csv';
 const DEFAULT_AMD_SHEET_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSQWQ4tqEWR26vaTGCd1_UlUuVQi2RJAAmlltj-ZN-9ioFa3t68-L4ebKfIhf5-fP06qDgV843krEpv/pub?output=csv';
 const BRANCH_SHEET_WRITE_ENDPOINTS={GGR:'https://script.google.com/macros/s/AKfycby0OJKlqCHXxoor9s8lSNeekdriODwhTycMfV69OWU_Qu3kQoWCVMGo8AeDl8DWtPnJ/exec',LKN:'https://script.google.com/macros/s/AKfycbwQi9jVXPKNprC2sf8cLN8yeevM5ebjuFmZnbD2zu9BqcopaVv1WTaijL_G_4ZoU5tN/exec',AMD:'https://script.google.com/macros/s/AKfycbyIxXLC1fB_X7IE-VImmvW6ZGpwGP3itmrqjm7gCKm3uCQTAvSnVlKf8ybrVHwTMuSu/exec'};
+const ACCESS_USERS_READ_URL='';
+const ACCESS_USERS_WRITE_ENDPOINT='';
 // ═══ STATE ════════════════════════════════════════════════════════════════
 let S = {
   status:{}, backout:{}, reassign:[], added:[], extra:{},
@@ -5564,14 +5566,73 @@ function ensureSourcesAccess(){
 }
 const ADMIN_EMAIL='admin@vizvainc.com';
 const ADMIN_PASSWORD='Tushar@123';
-const ADMIN_NAME='Tushar';
+const ADMIN_NAME='Admin';
 const ACCESS_BRANCH_OPTIONS=[{id:'GGR',label:'GGR'},{id:'LKN',label:'LKN'},{id:'AMD',label:'AMD'}];
 const SEEDED_ACCESS_USERS=[{id:'seed_shashank',name:'Shashank Sharma',email:'shashank.sharma@silverspaceinc.com',password:'Shashank@123',pages:['overview','analytics','profiles','add-candidate','assign','recruiters','teamleads','alerts','po','insights','sources'],branches:['GGR'],seeded:true}];
+window._vizvaSharedAccessUsers=window._vizvaSharedAccessUsers||[];
 function normalizeAuthEmail(v){return String(v||'').trim().toLowerCase();}
 function displayNameFromEmail(email){const local=normalizeAuthEmail(email).split('@')[0]||'User';return local.split(/[._-]+/).filter(Boolean).map(s=>s.charAt(0).toUpperCase()+s.slice(1)).join(' ')||'User';}
+function normalizeAccessUser(u){
+  if(!u) return null;
+  const email=normalizeAuthEmail(u.email);
+  if(!email) return null;
+  return {
+    id:u.id||('usr_'+email.replace(/[^a-z0-9]+/g,'_')),
+    name:(u.name||displayNameFromEmail(email)||'User').trim(),
+    email,
+    password:String(u.password||'').trim(),
+    pages:Array.from(new Set((u.pages||[]).filter(p=>VIEWS.includes(p) && p!=='access'))),
+    branches:Array.from(new Set(((u.branches&&u.branches.length)?u.branches:ACCESS_BRANCH_OPTIONS.map(opt=>opt.id)).filter(b=>ACCESS_BRANCH_OPTIONS.some(opt=>opt.id===b)))),
+    createdAt:u.createdAt||'',
+    updatedAt:u.updatedAt||'',
+    seeded:!!u.seeded,
+    shared:!!u.shared
+  };
+}
+async function loadSharedAccessUsers(){
+  if(!ACCESS_USERS_READ_URL) return [];
+  try{
+    const res=await fetch(ACCESS_USERS_READ_URL,{cache:'no-store'});
+    if(!res.ok) throw new Error('Failed to load shared users');
+    const text=await res.text();
+    let rows=[];
+    try{
+      const parsed=JSON.parse(text);
+      rows=Array.isArray(parsed)?parsed:(Array.isArray(parsed.users)?parsed.users:[]);
+    }catch(_){
+      rows=parseCSV(text,'GGR').map(x=>({
+        id:x.id||'',
+        name:x.name||x.n||'',
+        email:x.email||'',
+        password:x.password||'',
+        pages:String(x.pages||'').split(/[|,]/).map(s=>s.trim()).filter(Boolean),
+        branches:String(x.branches||'').split(/[|,]/).map(s=>s.trim()).filter(Boolean),
+        createdAt:x.createdAt||'',
+        updatedAt:x.updatedAt||'',
+        shared:true
+      }));
+    }
+    window._vizvaSharedAccessUsers=rows.map(normalizeAccessUser).filter(Boolean);
+    return window._vizvaSharedAccessUsers;
+  }catch(e){
+    console.warn('Shared access users unavailable',e);
+    return window._vizvaSharedAccessUsers||[];
+  }
+}
+async function writeSharedAccessUser(action,user){
+  if(!ACCESS_USERS_WRITE_ENDPOINT) return {ok:false,skipped:true};
+  const res=await fetch(ACCESS_USERS_WRITE_ENDPOINT,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action,user})
+  });
+  if(!res.ok) throw new Error('Shared user sync failed: '+res.status);
+  return res.json().catch(()=>({ok:true}));
+}
 function getAllAccessUsers(){
   const merged=new Map();
   SEEDED_ACCESS_USERS.forEach(u=>merged.set(normalizeAuthEmail(u.email),{...u}));
+  (window._vizvaSharedAccessUsers||[]).forEach(u=>merged.set(normalizeAuthEmail(u.email),{...merged.get(normalizeAuthEmail(u.email)),...u,shared:true}));
   ((S&&S.accessUsers)||[]).forEach(u=>merged.set(normalizeAuthEmail(u.email),{...merged.get(normalizeAuthEmail(u.email)),...u,seeded:false}));
   return Array.from(merged.values());
 }
@@ -5588,8 +5649,11 @@ function getAuthUsers(){
   })).filter(u=>u.email && u.password);
   return [{id:'admin',role:'admin',name:ADMIN_NAME,email:ADMIN_EMAIL,password:ADMIN_PASSWORD,views:VIEWS.slice()}].concat(extra);
 }
-function getAuthUserByCredentials(email,password){
+async function getAuthUserByCredentials(email,password){
   const normEmail=normalizeAuthEmail(email), pass=String(password||'').trim();
+  let found=getAuthUsers().find(u=>u.email===normEmail && u.password===pass) || null;
+  if(found || !ACCESS_USERS_READ_URL) return found;
+  await loadSharedAccessUsers();
   return getAuthUsers().find(u=>u.email===normEmail && u.password===pass) || null;
 }
 function getAuthorizedViews(){
@@ -5679,11 +5743,11 @@ function toggleAuthPassword(){
   input.type=show?'text':'password';
   btn.textContent=show?'Hide':'Show';
 }
-function submitAuthLogin(){
+async function submitAuthLogin(){
   const email=(document.getElementById('admin-email')?.value||'').trim().toLowerCase();
   const password=(document.getElementById('admin-password')?.value||'').trim();
   const errorEl=document.getElementById('admin-auth-error');
-  const user=getAuthUserByCredentials(email,password);
+  const user=await getAuthUserByCredentials(email,password);
   if(user){
     window._vizvaAuthUser=user;
     window._vizvaAdminUnlocked=(user.role==='admin');
@@ -5699,6 +5763,7 @@ function submitAuthLogin(){
 function initAdminAuth(){
   window._vizvaAuthUser=null;
   window._vizvaAdminUnlocked=false;
+  loadSharedAccessUsers();
   setAdminLockState(true);
 }
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', initAdminAuth);
@@ -5716,6 +5781,9 @@ function copyAccessUser(email){const u=getAllAccessUsers().find(x=>x.email===ema
 // ═══════════════════════════════════════════════════════════════════════════
 // FIX: nav function - updated with categories
 // ═══════════════════════════════════════════════════════════════════════════
+renderAccessControl=function(){const list=document.getElementById('access-page-list'),branchList=document.getElementById('access-branch-list'),usersEl=document.getElementById('access-user-list');if(!list||!branchList||!usersEl)return;if(window._vizvaAuthUser?.role!=='admin'){list.innerHTML='';branchList.innerHTML='';usersEl.innerHTML='<div class="access-empty">Only admin can manage access.</div>';return;}const selected=new Set(getSelectedAccessPages()),selectedBranches=new Set(getSelectedAccessBranches());list.innerHTML=ACCESS_PAGE_OPTIONS.map(p=>`<label class="access-page-opt"><input type="checkbox" value="${p.id}" ${selected.size?(selected.has(p.id)?'checked':''):'checked'}><span>${p.label}</span></label>`).join('');branchList.innerHTML=ACCESS_BRANCH_OPTIONS.map(b=>`<label class="access-page-opt"><input type="checkbox" value="${b.id}" ${selectedBranches.size?(selectedBranches.has(b.id)?'checked':''):'checked'}><span>${b.label}</span></label>`).join('');const users=getAllAccessUsers().slice().reverse();usersEl.innerHTML=users.length?users.map(u=>`<div class="access-user"><div class="access-user-top"><div><div class="access-user-email">${esc((u.name||displayNameFromEmail(u.email)||'User'))}</div><div class="access-user-meta">${esc(u.email||'')} · ${u.createdAt?new Date(u.createdAt).toLocaleString():(u.seeded?'Built-in access user':(u.shared?'Shared user':'Just now'))}</div></div><div class="access-user-pass">${esc(u.password||'')}</div></div><div class="access-tags">${(u.pages||[]).map(page=>`<span class="access-tag">${esc(page==='access'?ACCESS_TITLE:(TITLES[page]||page))}</span>`).join('')}${(u.branches||[]).map(branch=>`<span class="access-tag">${esc(branch)} Data</span>`).join('')}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="copyAccessUser('${escJ(u.email||'')}')">Copy Credentials</button>${u.seeded?'':`<button class="btn btn-red btn-sm" onclick="deleteAccessUser('${escJ(u.id||'')}')">Delete</button>`}</div></div>`).join(''):'<div class="access-empty">No users created yet.</div>';};
+createAccessUser=async function(){const name=(document.getElementById('access-name')?.value||'').trim(),emailRaw=(document.getElementById('access-email')?.value||'').trim(),email=normalizeAuthEmail(emailRaw),password=(document.getElementById('access-password')?.value||'').trim(),pages=Array.from(new Set(getSelectedAccessPages())),branches=Array.from(new Set(getSelectedAccessBranches()));if(window._vizvaAuthUser?.role!=='admin'){toast('Only admin can create users','amber');return;}if(!name){toast('Enter user name','amber');return;}if(!email){toast('Enter email ID','amber');return;}if(email===ADMIN_EMAIL){toast('This email is reserved for admin','amber');return;}if(!password){toast('Generate or enter a password','amber');return;}if(!pages.length){toast('Select at least one page','amber');return;}if(!branches.length){toast('Select at least one branch','amber');return;}if(!S.accessUsers)S.accessUsers=[];const existing=(S.accessUsers||[]).find(u=>normalizeAuthEmail(u.email)===email);const payload={id:existing?.id||('usr_'+Date.now()),name,email,password,pages,branches,createdAt:existing?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};if(existing){Object.assign(existing,payload);saveS();try{await writeSharedAccessUser('upsert',payload);}catch(e){toast('Saved locally. Shared sync not configured yet','amber');}document.getElementById('access-name').value='';document.getElementById('access-email').value='';document.getElementById('access-password').value='';loadSharedAccessUsers();renderAccessControl();toast('User updated','ok');return;}S.accessUsers.push(payload);saveS();try{await writeSharedAccessUser('upsert',payload);}catch(e){toast('Saved locally. Shared sync not configured yet','amber');}document.getElementById('access-name').value='';document.getElementById('access-email').value='';document.getElementById('access-password').value='';loadSharedAccessUsers();renderAccessControl();toast('User created','ok');};
+deleteAccessUser=async function(id){if(window._vizvaAuthUser?.role!=='admin'){toast('Only admin can delete users','amber');return;}if(!confirm('Delete this user?'))return;const user=(S.accessUsers||[]).find(u=>u.id===id)||getAllAccessUsers().find(u=>u.id===id);S.accessUsers=(S.accessUsers||[]).filter(u=>u.id!==id);saveS();try{if(user)await writeSharedAccessUser('delete',user);}catch(e){toast('Deleted locally. Shared sync not configured yet','amber');}loadSharedAccessUsers();renderAccessControl();toast('User removed','amber');};
 function nav(v){
   if(!window._vizvaAuthUser){ setAdminLockState(true); return; }
   if(!canAccessView(v)){
