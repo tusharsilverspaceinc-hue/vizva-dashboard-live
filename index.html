@@ -2999,8 +2999,8 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
   <div class="admin-auth-card">
     <div class="admin-auth-hero">
       <div class="admin-auth-eyebrow">Admin Access</div>
-      <h2>Control the entire Vizva dashboard.</h2>
-      <p>Review recruiting performance, candidate flow, source health, and branch operations from one protected admin workspace.</p>
+      <h2>Secure access for every Vizva dashboard user.</h2>
+      <p>Use one shared sign-in experience for admin and every user you create from Access Control, with page visibility based on the access you assign.</p>
       <div class="admin-auth-chiprow">
         <span class="admin-auth-chip">Live sheet sync</span>
         <span class="admin-auth-chip">Branch insights</span>
@@ -3016,8 +3016,8 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
           <span>Live sync cadence</span>
         </div>
         <div class="admin-auth-kpi">
-          <strong>1</strong>
-          <span>Admin workspace</span>
+          <strong>Role</strong>
+          <span>Based access</span>
         </div>
       </div>
     </div>
@@ -3025,7 +3025,7 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
       <div class="admin-auth-formhead">
         <div>
           <div class="admin-auth-eyebrow">Secure Sign In</div>
-          <p>Use the admin credentials to unlock the dashboard.</p>
+          <p>Sign in with admin credentials or with a user account created from Access Control.</p>
         </div>
         <div class="admin-auth-badge">Protected</div>
       </div>
@@ -3036,15 +3036,15 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
         </div>
         <div class="admin-auth-field">
           <label>Password</label>
-          <input id="admin-password" type="password" placeholder="Enter admin password" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAdminLogin()" />
+          <input id="admin-password" type="password" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuthLogin()" />
         </div>
       </div>
       <div class="admin-auth-actions">
-        <button class="btn btn-blue" onclick="submitAdminLogin()">Open Dashboard</button>
+        <button class="btn btn-blue" onclick="submitAuthLogin()">Open Dashboard</button>
       </div>
       <div class="admin-auth-error" id="admin-auth-error"></div>
       <div class="admin-auth-help">
-        <strong>Admin Email</strong>
+        <strong>Default Admin</strong>
         <code>admin@vizvainc.com</code>
       </div>
     </div>
@@ -5354,6 +5354,46 @@ function ensureSourcesAccess(){
 }
 const ADMIN_EMAIL='admin@vizvainc.com';
 const ADMIN_PASSWORD='Tushar@123';
+function normalizeAuthEmail(v){return String(v||'').trim().toLowerCase();}
+function getAuthUsers(){
+  const extra=((S&&S.accessUsers)||[]).map(u=>({
+    id:u.id||('usr_'+normalizeAuthEmail(u.email)),
+    role:'user',
+    email:normalizeAuthEmail(u.email),
+    password:String(u.password||'').trim(),
+    views:Array.from(new Set((u.pages||[]).filter(p=>VIEWS.includes(p) && p!=='access')))
+  })).filter(u=>u.email && u.password);
+  return [{id:'admin',role:'admin',email:ADMIN_EMAIL,password:ADMIN_PASSWORD,views:VIEWS.slice()}].concat(extra);
+}
+function getAuthUserByCredentials(email,password){
+  const normEmail=normalizeAuthEmail(email), pass=String(password||'').trim();
+  return getAuthUsers().find(u=>u.email===normEmail && u.password===pass) || null;
+}
+function getAuthorizedViews(){
+  const u=window._vizvaAuthUser;
+  if(!u) return [];
+  return u.role==='admin' ? VIEWS.slice() : Array.from(new Set((u.views||[]).filter(v=>VIEWS.includes(v) && v!=='access')));
+}
+function getDefaultAuthorizedView(){
+  const allowed=getAuthorizedViews();
+  if(!allowed.length) return 'overview';
+  return allowed.includes('overview') ? 'overview' : allowed[0];
+}
+function canAccessView(v){return getAuthorizedViews().includes(v);}
+function applyAuthViewAccess(){
+  const allowed=new Set(getAuthorizedViews());
+  document.querySelectorAll('.nav-item[data-view], .mnav-item[data-view]').forEach(el=>{
+    const show=allowed.has(el.dataset.view);
+    el.style.display=show?'':'none';
+  });
+  if(window._vizvaAuthUser){
+    const next=getDefaultAuthorizedView();
+    if(!canAccessView(window._vizvaCurrentView||'')) window._vizvaCurrentView='';
+    if(next && !canAccessView(document.querySelector('.view.on')?.id?.replace('v-',''))){
+      setTimeout(()=>nav(next),0);
+    }
+  }
+}
 function setAdminLockState(locked){
   document.body.classList.toggle('auth-locked', !!locked);
   document.getElementById('admin-auth')?.classList.toggle('on', !!locked);
@@ -5366,22 +5406,29 @@ function setAdminLockState(locked){
       if(emailEl && !emailEl.value) emailEl.value=ADMIN_EMAIL;
       (passEl||emailEl)?.focus();
     },30);
+  }else{
+    applyAuthViewAccess();
   }
 }
-function submitAdminLogin(){
+function submitAuthLogin(){
   const email=(document.getElementById('admin-email')?.value||'').trim().toLowerCase();
   const password=(document.getElementById('admin-password')?.value||'').trim();
   const errorEl=document.getElementById('admin-auth-error');
-  if(email===ADMIN_EMAIL && password===ADMIN_PASSWORD){
-    window._vizvaAdminUnlocked=true;
+  const user=getAuthUserByCredentials(email,password);
+  if(user){
+    window._vizvaAuthUser=user;
+    window._vizvaAdminUnlocked=(user.role==='admin');
     setAdminLockState(false);
-    window.toast && window.toast('Admin access granted', 'ok');
+    window.toast && window.toast(user.role==='admin'?'Admin access granted':'Access granted', 'ok');
+    const next=canAccessView(window._vizvaCurrentView||'') ? (window._vizvaCurrentView||getDefaultAuthorizedView()) : getDefaultAuthorizedView();
+    if(next) nav(next);
     return true;
   }
-  if(errorEl) errorEl.textContent='Incorrect admin email or password.';
+  if(errorEl) errorEl.textContent='Incorrect email or password.';
   return false;
 }
 function initAdminAuth(){
+  window._vizvaAuthUser=null;
   window._vizvaAdminUnlocked=false;
   setAdminLockState(true);
 }
@@ -5392,7 +5439,7 @@ function randomAccessPassword(len){const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefgh
 function generateAccessPassword(){const el=document.getElementById('access-password');if(!el)return;el.value=randomAccessPassword(10);}
 function getSelectedAccessPages(){return Array.from(document.querySelectorAll('#access-page-list input[type="checkbox"]:checked')).map(x=>x.value);}
 function renderAccessControl(){const list=document.getElementById('access-page-list'),usersEl=document.getElementById('access-user-list');if(!list||!usersEl)return;const selected=new Set(getSelectedAccessPages());list.innerHTML=ACCESS_PAGE_OPTIONS.map(p=>`<label class="access-page-opt"><input type="checkbox" value="${p.id}" ${selected.size?(selected.has(p.id)?'checked':''):'checked'}><span>${p.label}</span></label>`).join('');const users=(S.accessUsers||[]).slice().reverse();usersEl.innerHTML=users.length?users.map(u=>`<div class="access-user"><div class="access-user-top"><div><div class="access-user-email">${esc(u.email||'')}</div><div class="access-user-meta">Created ${u.createdAt?new Date(u.createdAt).toLocaleString():'Just now'}</div></div><div class="access-user-pass">${esc(u.password||'')}</div></div><div class="access-tags">${(u.pages||[]).map(page=>`<span class="access-tag">${esc(page==='access'?ACCESS_TITLE:(TITLES[page]||page))}</span>`).join('')}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="copyAccessUser('${escJ(u.email||'')}')">Copy Credentials</button><button class="btn btn-red btn-sm" onclick="deleteAccessUser('${escJ(u.id||'')}')">Delete</button></div></div>`).join(''):'<div class="access-empty">No users created yet.</div>';}
-function createAccessUser(){const email=(document.getElementById('access-email')?.value||'').trim(),password=(document.getElementById('access-password')?.value||'').trim(),pages=getSelectedAccessPages();if(!email){toast('Enter email ID','amber');return;}if(!password){toast('Generate or enter a password','amber');return;}if(!pages.length){toast('Select at least one page','amber');return;}if(!S.accessUsers)S.accessUsers=[];S.accessUsers.push({id:'usr_'+Date.now(),email,password,pages,createdAt:new Date().toISOString()});saveS();document.getElementById('access-email').value='';document.getElementById('access-password').value='';renderAccessControl();toast('User created','ok');}
+function createAccessUser(){const emailRaw=(document.getElementById('access-email')?.value||'').trim(),email=normalizeAuthEmail(emailRaw),password=(document.getElementById('access-password')?.value||'').trim(),pages=Array.from(new Set(getSelectedAccessPages()));if(!email){toast('Enter email ID','amber');return;}if(email===ADMIN_EMAIL){toast('This email is reserved for admin','amber');return;}if(!password){toast('Generate or enter a password','amber');return;}if(!pages.length){toast('Select at least one page','amber');return;}if(!S.accessUsers)S.accessUsers=[];const existing=(S.accessUsers||[]).find(u=>normalizeAuthEmail(u.email)===email);if(existing){existing.email=email;existing.password=password;existing.pages=pages;existing.updatedAt=new Date().toISOString();saveS();document.getElementById('access-email').value='';document.getElementById('access-password').value='';renderAccessControl();toast('User updated','ok');return;}S.accessUsers.push({id:'usr_'+Date.now(),email,password,pages,createdAt:new Date().toISOString()});saveS();document.getElementById('access-email').value='';document.getElementById('access-password').value='';renderAccessControl();toast('User created','ok');}
 function deleteAccessUser(id){if(!confirm('Delete this user?'))return;S.accessUsers=(S.accessUsers||[]).filter(u=>u.id!==id);saveS();renderAccessControl();toast('User removed','amber');}
 function copyAccessUser(email){const u=(S.accessUsers||[]).find(x=>x.email===email);if(!u)return;const text=`Email: ${u.email}\nPassword: ${u.password}\nPages: ${(u.pages||[]).map(p=>p==='access'?ACCESS_TITLE:(TITLES[p]||p)).join(', ')}`;if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>toast('Credentials copied','ok'));}}
 
@@ -5400,6 +5447,13 @@ function copyAccessUser(email){const u=(S.accessUsers||[]).find(x=>x.email===ema
 // FIX: nav function - updated with categories
 // ═══════════════════════════════════════════════════════════════════════════
 function nav(v){
+  if(!window._vizvaAuthUser){ setAdminLockState(true); return; }
+  if(!canAccessView(v)){
+    window.toast && window.toast('You do not have access to this page', 'amber');
+    const fallback=getDefaultAuthorizedView();
+    if(fallback && fallback!==v && window._vizvaCurrentView!==fallback) setTimeout(()=>nav(fallback),0);
+    return;
+  }
   if(v==='sources' && !ensureSourcesAccess()) return;
   if(window._vizvaCurrentView===v)return;
   window._vizvaCurrentView=v;
