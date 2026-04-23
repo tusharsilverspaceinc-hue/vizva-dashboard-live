@@ -9258,11 +9258,20 @@ window.renderOverviewAll = function() {
       /* Soften visual competition between the three KPI strips on Overview */
       .content{ scroll-behavior: auto !important; }
       .tb{ backdrop-filter: none !important; }
+      #v-overview .page-hero{ display:none !important; }
+      #v-overview #overview-hero-stats{ display:none !important; }
+      #v-overview .section-block{ margin-top: 0 !important; }
+      #v-overview .chart-lib-header{ margin: 0 0 10px !important; align-items: center !important; }
+      #v-overview .chart-lib-header strong{ color: var(--t2) !important; letter-spacing: .16em !important; }
+      #v-overview .chart-lib-header span{ color: var(--t3) !important; }
       #v-overview #kpi-row{ margin-top: 4px; }
+      #v-overview #kpi-row{ padding: 0 !important; gap: 12px !important; grid-template-columns: repeat(4,minmax(0,1fr)) !important; }
       #v-overview #kpi-row .kpi{ padding: 14px 16px; }
       #v-overview #kpi-row .kpi-val{ font-size: 26px; }
       #v-overview #kpi-row .kpi-lbl{ font-size: 10px; margin-bottom: 7px; }
       #v-overview #kpi-row .kpi-sub{ font-size: 11px; }
+      #v-overview #kpi-row .kpi{ min-height: 154px; border-radius: 20px !important; }
+      #v-overview .branch-grid{ margin-top: 8px !important; }
       #v-overview .hero-title{ font-size: 26px; line-height: 1.15; }
       #v-overview .ov-stat-strip{ padding: 16px 18px; gap: 12px; }
       #v-overview .ov-stat{ padding: 14px 10px; }
@@ -9309,6 +9318,12 @@ window.renderOverviewAll = function() {
       }
       /* The "LIVE SNAPSHOT" section header gets more breathing room */
       #v-overview .chart-lib-header{ margin-top: 4px; }
+      @media (max-width: 1100px){
+        #v-overview #kpi-row{ grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+      }
+      @media (max-width: 640px){
+        #v-overview #kpi-row{ grid-template-columns: 1fr !important; }
+      }
     `;
     document.head.appendChild(css);
   })();
