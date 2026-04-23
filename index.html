@@ -3174,15 +3174,6 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
         <div class="branch-grid" id="branch-grid"></div>
       </div>
 
-      <!-- LIVE INTELLIGENCE RIBBON -->
-      <div class="panel" id="ov-live-intelligence-panel" style="display:none">
-        <div class="ph" style="padding:10px 16px">
-          <h2>&#128161; Live Intelligence</h2>
-          <span class="ph-note" id="ov-sum-note">Loading...</span>
-        </div>
-        <div id="ov-insight-ribbon" style="display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px 14px"></div>
-      </div>
-
       <!-- PIPELINE SNAPSHOT STRIP -->
       <div class="panel">
         <div class="ph" style="padding:10px 16px">
@@ -3229,22 +3220,11 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
         </div>
       </div>
 
-
-      <!-- NEW: Branch Health Scorecard -->
-      <div class="panel" id="ov-branch-scorecard-panel" style="display:none">
-        <div class="ph"><h2>&#127963; Branch Health Scorecard</h2><span class="ph-note">Color-coded health per branch — click to filter</span></div>
-        <div id="ov-branch-scorecard" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 16px 16px"></div>
-      </div>
-
       <!-- NEW: At-Risk Profiles + Monthly Trend Row -->
-      <div class="g2" style="margin-bottom:12px">
+      <div style="margin-bottom:12px">
         <div class="panel">
           <div class="ph"><h2>&#128293; Top At-Risk Profiles</h2><span class="ph-note">Aging 170+ days — immediate follow-up needed</span></div>
           <div id="ov-atrisk" style="padding:10px 14px 14px"></div>
-        </div>
-        <div class="panel" id="ov-trend-panel" style="display:none">
-          <div class="ph"><h2>&#128200; 6-Month Trend</h2><span class="ph-note">Inflow (bars) vs PO placements (line)</span></div>
-          <div id="ov-trend-chart" style="padding:12px 16px 14px"></div>
         </div>
       </div>
 
