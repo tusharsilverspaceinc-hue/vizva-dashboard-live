@@ -6704,7 +6704,7 @@ function renderRegRecs(){
       <div>
         <div style="font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px">
           ${esc(recName)}
-          ${isRegistered?'<span style="font-size:7px;background:var(--teal-d);color:var(--teal);padding:1px 5px;border-radius:3px;font-weight:700">REGISTERED</span>':'<span style="font-size:7px;background:var(--s4);color:var(--t3);padding:1px 5px;border-radius:3px">CSV</span>'}
+          ${isRegistered?'<span style="font-size:7px;background:var(--teal-d);color:var(--teal);padding:1px 5px;border-radius:3px;font-weight:700">REGISTERED</span>':'<span style="font-size:7px;background:var(--s4);color:var(--t3);padding:1px 5px;border-radius:3px">LIVE</span>'}
         </div>
         <div style="font-size:9px;color:var(--t3);margin-top:2px">${profiles.length} profiles · ${po} PO${aging>0?' · <span style="color:var(--orange)">&#128293;'+aging+' aging</span>':''}</div>
       </div>
@@ -6861,6 +6861,39 @@ function saveTL(editIdx){
   saveRegTLs(tls);closeModal();renderRegTLs();renderTLs();
 }
 function delTL(i){const tls=getRegTLs();if(!tls[i])return;if(!confirm('Remove '+tls[i].name+'?'))return;toast(tls[i].name.split(' ')[0]+' removed','amber');tls.splice(i,1);saveRegTLs(tls);renderRegTLs();renderTLs();}
+renderRegTLs=function(){
+  const body=document.getElementById('reg-tl-body');
+  if(!body)return;
+  const liveMap={};
+  allData().forEach(x=>{
+    const name=String(x.tl||'').trim();
+    if(!name) return;
+    if(!liveMap[name]) liveMap[name]={name,email:'',phone:'',branch:x.src||'GGR'};
+  });
+  getRegTLs().forEach(t=>{
+    const name=String(t.name||'').trim();
+    if(!name) return;
+    liveMap[name]={...(liveMap[name]||{name,branch:t.branch||'GGR'}),...t};
+  });
+  const tls=Object.values(liveMap).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
+  if(!tls.length){body.innerHTML='<div class="empty">No team leads found in live sheet data yet.</div>';return;}
+  const hdr='<div style="display:grid;grid-template-columns:180px 170px 130px 80px 1fr;gap:6px;padding:7px 14px;background:var(--s3);font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);border-bottom:1px solid var(--bd)"><span>Name</span><span>Email</span><span>Phone</span><span>Branch</span><span>Actions</span></div>';
+  body.innerHTML=hdr+tls.map((t)=>{
+    const regIdx=getRegTLs().findIndex(x=>x.name===t.name);
+    const canDelete=regIdx>=0;
+    return `<div style="display:grid;grid-template-columns:180px 170px 130px 80px 1fr;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid rgba(255,255,255,.04);font-size:10.5px" onmouseenter="this.style.background='var(--s3)'" onmouseleave="this.style.background=''">
+      <span style="font-weight:600">${esc(t.name)}</span>
+      <span style="color:var(--t3);font-size:10px">${esc(t.email||'â€”')}</span>
+      <span style="color:var(--t3);font-size:10px">${esc(t.phone||'â€”')}</span>
+      <span>${brBadge(t.branch||'GGR')}</span>
+      <span style="display:flex;gap:4px">
+        <button class="btn btn-ghost btn-xs" onclick="showAddTLModal(${canDelete?regIdx:'null'})">&#9998;</button>
+        ${canDelete?`<button class="btn btn-red btn-xs" onclick="delTL(${regIdx})">&#10005;</button>`:''}
+        <button class="btn btn-ghost btn-xs" onclick="showEmailModal({tl:'${escJ(t.name)}'})">&#128231;</button>
+      </span>
+    </div>`;
+  }).join('');
+};
 
 // ── ACTIVITY CHART ────────────────────────────────────────────────────────
 let _actP='day';
@@ -6928,8 +6961,9 @@ window.nav = function(v){
       getAllTLs().forEach(t=>{const o=new Option(t,t);rtlSel.add(o);});
     }
     renderRegRecs();
+    renderRecruiters();
   }
-  if(v==='teamleads') renderRegTLs();
+  if(v==='teamleads'){ renderRegTLs(); renderTLs(); }
   if(v==='insights') renderInsightsAll();
 };
 
@@ -6939,8 +6973,8 @@ window.refreshAll = function(){
   _baseRefresh();
   if(window.renderOverviewAll) renderOverviewAll(); else renderOvStatStrip();
   const cur=VIEWS.find(id=>document.getElementById('v-'+id)?.classList.contains('on'));
-  if(cur==='recruiters'){renderRegRecs();}
-  if(cur==='teamleads') renderRegTLs();
+  if(cur==='recruiters'){renderRegRecs();renderRecruiters();}
+  if(cur==='teamleads'){renderRegTLs();renderTLs();}
   if(cur==='insights') renderInsightsAll();
 };
 
