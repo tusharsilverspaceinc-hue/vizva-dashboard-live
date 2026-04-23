@@ -2559,6 +2559,30 @@ tbody tr:hover .v12-row-actions {
 .access-tag{font-size:9.5px;font-weight:700;padding:4px 8px;border-radius:999px;background:var(--blue-d);color:var(--blue-l);border:1px solid color-mix(in srgb,var(--blue) 26%,transparent)}
 .access-empty{padding:30px 18px;text-align:center;color:var(--t3);font-size:12px;border:1px dashed var(--bd);border-radius:12px;background:var(--s3)}
 
+/* ---- Admin login gate ---- */
+body.auth-locked{overflow:hidden}
+body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
+.admin-auth{
+  position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;
+  padding:24px;background:
+    radial-gradient(circle at top left, color-mix(in srgb,var(--blue) 18%, transparent), transparent 38%),
+    linear-gradient(145deg, rgba(6,12,25,.92), rgba(8,17,32,.96));
+  backdrop-filter:blur(10px)
+}
+.admin-auth.on{display:flex}
+.admin-auth-card{
+  width:min(100%,460px);background:linear-gradient(180deg,var(--s2),color-mix(in srgb,var(--s2) 86%, black 14%));
+  border:1px solid color-mix(in srgb,var(--blue) 22%, var(--bd));border-radius:22px;
+  padding:28px 26px;box-shadow:0 30px 90px rgba(0,0,0,.45)
+}
+.admin-auth-eyebrow{font-size:10px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--blue-l);margin-bottom:10px}
+.admin-auth-card h2{font-size:28px;line-height:1.1;font-weight:800;letter-spacing:-.04em;margin-bottom:8px}
+.admin-auth-card p{font-size:13px;line-height:1.6;color:var(--t2);margin-bottom:18px}
+.admin-auth-note{font-size:11px;color:var(--t3);margin-top:12px}
+.admin-auth-error{min-height:18px;font-size:11px;font-weight:700;color:#ff8f8f;margin-top:10px}
+.admin-auth-actions{display:flex;gap:10px;align-items:center;margin-top:14px}
+.admin-auth-actions .btn{flex:1}
+
 /* Branch card for source status */
 .v13-src-card {
   background: var(--s2);
@@ -2923,6 +2947,26 @@ tbody tr:hover .v12-row-actions {
 </style>
 </head>
 <body data-theme="stripe">
+<div class="admin-auth" id="admin-auth">
+  <div class="admin-auth-card">
+    <div class="admin-auth-eyebrow">Admin Access</div>
+    <h2>Vizva Dashboard</h2>
+    <p>Sign in with the admin email and password to open the main dashboard.</p>
+    <div class="field">
+      <label>Email ID</label>
+      <input id="admin-email" placeholder="admin@vizvainc.com" autocomplete="username" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input id="admin-password" type="password" placeholder="Enter admin password" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAdminLogin()" />
+    </div>
+    <div class="admin-auth-actions">
+      <button class="btn btn-blue" onclick="submitAdminLogin()">Open Dashboard</button>
+    </div>
+    <div class="admin-auth-error" id="admin-auth-error"></div>
+    <div class="admin-auth-note">Admin email: <strong>admin@vizvainc.com</strong></div>
+  </div>
+</div>
 <div class="app">
 <aside class="sb">
   <div class="brand">
@@ -5225,6 +5269,41 @@ function ensureSourcesAccess(){
   window.toast && window.toast('Incorrect password', 'red');
   return false;
 }
+const ADMIN_EMAIL='admin@vizvainc.com';
+const ADMIN_PASSWORD='Tushar@123';
+function setAdminLockState(locked){
+  document.body.classList.toggle('auth-locked', !!locked);
+  document.getElementById('admin-auth')?.classList.toggle('on', !!locked);
+  if(locked){
+    setTimeout(()=>{
+      const emailEl=document.getElementById('admin-email');
+      const passEl=document.getElementById('admin-password');
+      const errorEl=document.getElementById('admin-auth-error');
+      if(errorEl) errorEl.textContent='';
+      if(emailEl && !emailEl.value) emailEl.value=ADMIN_EMAIL;
+      (passEl||emailEl)?.focus();
+    },30);
+  }
+}
+function submitAdminLogin(){
+  const email=(document.getElementById('admin-email')?.value||'').trim().toLowerCase();
+  const password=(document.getElementById('admin-password')?.value||'').trim();
+  const errorEl=document.getElementById('admin-auth-error');
+  if(email===ADMIN_EMAIL && password===ADMIN_PASSWORD){
+    window._vizvaAdminUnlocked=true;
+    setAdminLockState(false);
+    window.toast && window.toast('Admin access granted', 'ok');
+    return true;
+  }
+  if(errorEl) errorEl.textContent='Incorrect admin email or password.';
+  return false;
+}
+function initAdminAuth(){
+  window._vizvaAdminUnlocked=false;
+  setAdminLockState(true);
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', initAdminAuth);
+else initAdminAuth();
 const ACCESS_PAGE_OPTIONS=[{id:'overview',label:'Overview'},{id:'analytics',label:'Analytics'},{id:'profiles',label:'Profiles'},{id:'add-candidate',label:'Add Candidate'},{id:'assign',label:'Smart Assign'},{id:'recruiters',label:'Recruiters'},{id:'teamleads',label:'Team Leads'},{id:'alerts',label:'Alerts'},{id:'po',label:'PO Placed'},{id:'insights',label:'Insights'},{id:'sources',label:'Data Sources'}];
 function randomAccessPassword(len){const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';let out='';for(let i=0;i<(len||10);i++)out+=chars[Math.floor(Math.random()*chars.length)];return out;}
 function generateAccessPassword(){const el=document.getElementById('access-password');if(!el)return;el.value=randomAccessPassword(10);}
