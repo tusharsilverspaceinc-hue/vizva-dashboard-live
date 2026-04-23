@@ -5247,12 +5247,14 @@ function buildTbl(id, rows, actions){
         <td>${brBadge(d.src||'GGR')}</td>
         <td>${xExp(d.expIn)}</td>
         <td>${xDays(d.days)}</td>
+        <td title="${esc(d.email||'â€”')}">${esc(d.email||'â€”')}</td>
+        <td title="${esc(d.phone||'â€”')}">${esc(d.phone||'â€”')}</td>
         ${act}
       </tr>`;
     }catch(e){return'';}
   }).join('');
   const ah=actions?'<th>Actions</th>':'';
-  document.getElementById(id).innerHTML=`<table><thead><tr><th>Candidate</th><th>Recruiter</th><th>TL</th><th>Role</th><th>Visa</th><th>Exp</th><th>Status</th><th>Branch</th><th>EAD</th><th>Days</th>${ah}</tr></thead><tbody>${html2||'<tr><td colspan="11" style="text-align:center;padding:32px;color:var(--t3)">No profiles match the current filters</td></tr>'}</tbody></table>`;
+  document.getElementById(id).innerHTML=`<table><thead><tr><th>Candidate</th><th>Recruiter</th><th>TL</th><th>Role</th><th>Visa</th><th>Exp</th><th>Status</th><th>Branch</th><th>EAD</th><th>Days</th><th>Email</th><th>Phone</th>${ah}</tr></thead><tbody>${html2||'<tr><td colspan="13" style="text-align:center;padding:32px;color:var(--t3)">No profiles match the current filters</td></tr>'}</tbody></table>`;
 }
 
 // Quick inline operations
