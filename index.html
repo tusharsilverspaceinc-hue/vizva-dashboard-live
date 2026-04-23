@@ -4136,6 +4136,18 @@ const AVC=['#4f8ef7','#10cfa0','#f5a623','#a060f5','#f04040','#20d870','#f07020'
 function ava(name,i){const c=AVC[i%AVC.length];const ini=name.trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase();return{c,ini};}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/'/g,"&#39;").replace(/"/g,'&quot;');}
 function escJ(s){return(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
+function digitsOnly(v){return String(v||'').replace(/\D/g,'');}
+function formatPhoneDisplay(v){
+  const d=digitsOnly(v);
+  const n=d.length===11&&d.startsWith('1')?d.slice(1):d;
+  if(n.length===10)return `+1 ${n.slice(0,3)}-${n.slice(3,6)}-${n.slice(6)}`;
+  return v||'—';
+}
+function formatPhoneHref(v){
+  const d=digitsOnly(v);
+  const n=d.length===11&&d.startsWith('1')?d:d.length===10?('1'+d):d;
+  return n?('+'+n):'';
+}
 function stBadge(st,bo){
   if(bo)return`<span class="badge st-Back" title="${esc(bo)}">Backout</span>`;
   const m={Active:'Active',New:'New','Low Priority':'Low',Hold:'Hold','Temp Hold':'Temp',PO:'PO'};
@@ -5248,7 +5260,7 @@ function buildTbl(id, rows, actions){
         <td>${xExp(d.expIn)}</td>
         <td>${xDays(d.days)}</td>
         <td title="${esc(d.email||'â€”')}">${esc(d.email||'â€”')}</td>
-        <td title="${esc(d.phone||'â€”')}">${esc(d.phone||'â€”')}</td>
+        <td title="${esc(formatPhoneDisplay(d.phone))}">${esc(formatPhoneDisplay(d.phone))}</td>
         ${act}
       </tr>`;
     }catch(e){return'';}
@@ -9547,7 +9559,7 @@ window.renderOverviewAll = function() {
         <div class="drw-section-h">Candidate</div>
         <dl class="drw-kv">
           <dt>Email</dt><dd>${escH(d.email || '—')}</dd>
-          <dt>Phone</dt><dd>${escH(d.phone || '—')}</dd>
+          <dt>Phone</dt><dd>${escH(formatPhoneDisplay(d.phone))}</dd>
           <dt>Location</dt><dd>${escH(d.loc || '—')}</dd>
           <dt>Role</dt><dd>${escH(d.tech || '—')}</dd>
           <dt>Experience</dt><dd>${d.exp || 0} years</dd>
@@ -9609,7 +9621,7 @@ window.renderOverviewAll = function() {
         <div class="drw-section-h">Communicate</div>
         <div class="drw-actions-grid">
           ${d.email ? `<a class="btn btn-ghost" href="mailto:${escJ(d.email)}" style="text-decoration:none;justify-content:center">Email candidate</a>` : '<button class="btn btn-ghost" disabled>No email on file</button>'}
-          ${d.phone ? `<a class="btn btn-ghost" href="tel:${escJ(d.phone)}" style="text-decoration:none;justify-content:center">Call candidate</a>` : '<button class="btn btn-ghost" disabled>No phone on file</button>'}
+          ${d.phone ? `<a class="btn btn-ghost" href="tel:${escJ(formatPhoneHref(d.phone))}" style="text-decoration:none;justify-content:center">Call candidate</a>` : '<button class="btn btn-ghost" disabled>No phone on file</button>'}
           ${d.tl ? `<button class="btn btn-ghost" onclick="showEmailModal({tl:'${escJ(d.tl)}',candName:'${escJ(d.n)}',tech:'${escJ(d.tech||'')}',visa:'${escJ(d.visa||'')}',rec:'${escJ(d.rec||'')}'});closeDrawer()">Email TL</button>` : ''}
           <button class="btn btn-ghost" onclick="navigator.clipboard && navigator.clipboard.writeText('${escJ(d.n)} · ${escJ(d.tech||'')} · ${escJ(d.visa||'')} · ${escJ(d.email||'')}').then(()=>window.toast&&window.toast('Copied','ok'))">Copy summary</button>
         </div>
