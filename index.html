@@ -5574,17 +5574,26 @@ function normalizeAuthEmail(v){return String(v||'').trim().toLowerCase();}
 function displayNameFromEmail(email){const local=normalizeAuthEmail(email).split('@')[0]||'User';return local.split(/[._-]+/).filter(Boolean).map(s=>s.charAt(0).toUpperCase()+s.slice(1)).join(' ')||'User';}
 function normalizeAccessUser(u){
   if(!u) return null;
-  const email=normalizeAuthEmail(u.email);
+  const rawEmail=u.email||u.Email||'';
+  const rawName=u.name||u.Name||'';
+  const rawPassword=u.password||u.Password||'';
+  const rawPages=u.pages||u.Pages||'';
+  const rawBranches=u.branches||u.Branches||'';
+  const rawCreatedAt=u.createdAt||u['Created At']||u.CreatedAt||'';
+  const rawUpdatedAt=u.updatedAt||u['Updated AT']||u['Updated At']||u.UpdatedAt||'';
+  const email=normalizeAuthEmail(rawEmail);
   if(!email) return null;
+  const pages=Array.isArray(rawPages)?rawPages:String(rawPages||'').split(/[|,]/).map(s=>s.trim()).filter(Boolean);
+  const branches=Array.isArray(rawBranches)?rawBranches:String(rawBranches||'').split(/[|,]/).map(s=>s.trim()).filter(Boolean);
   return {
     id:u.id||('usr_'+email.replace(/[^a-z0-9]+/g,'_')),
-    name:(u.name||displayNameFromEmail(email)||'User').trim(),
+    name:(rawName||displayNameFromEmail(email)||'User').trim(),
     email,
-    password:String(u.password||'').trim(),
-    pages:Array.from(new Set((u.pages||[]).filter(p=>VIEWS.includes(p) && p!=='access'))),
-    branches:Array.from(new Set(((u.branches&&u.branches.length)?u.branches:ACCESS_BRANCH_OPTIONS.map(opt=>opt.id)).filter(b=>ACCESS_BRANCH_OPTIONS.some(opt=>opt.id===b)))),
-    createdAt:u.createdAt||'',
-    updatedAt:u.updatedAt||'',
+    password:String(rawPassword||'').trim(),
+    pages:Array.from(new Set(pages.filter(p=>VIEWS.includes(p) && p!=='access'))),
+    branches:Array.from(new Set(((branches&&branches.length)?branches:ACCESS_BRANCH_OPTIONS.map(opt=>opt.id)).filter(b=>ACCESS_BRANCH_OPTIONS.some(opt=>opt.id===b)))),
+    createdAt:rawCreatedAt||'',
+    updatedAt:rawUpdatedAt||'',
     seeded:!!u.seeded,
     shared:!!u.shared
   };
