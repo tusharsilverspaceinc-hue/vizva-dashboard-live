@@ -3147,7 +3147,7 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
             <span id="ov-live-chip" style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;background:var(--teal-d);border:1px solid color-mix(in srgb,var(--teal) 25%,transparent);font-size:9px;font-weight:700;color:var(--teal)"><span style="width:5px;height:5px;border-radius:50%;background:var(--teal);animation:pulse 2.5s ease infinite;display:block"></span>Live</span>
           </div>
           <div class="hero-title" style="font-size:22px;line-height:1.1">Recruiter pipeline health, branch balance, and assignment pressure — in one view.</div>
-          <div class="hero-copy" style="margin-top:10px">Spot aging risk, overloaded recruiters, and branch gaps before they turn into missed placements. Every number below is live from your uploaded dataset.</div>
+          <div class="hero-copy" style="margin-top:10px">Spot aging risk, overloaded recruiters, and branch gaps before they turn into missed placements. Every number below is live from your sheet data.</div>
           <div class="hero-actions ov-hero-actions" style="margin-top:16px">
             <button class="btn btn-blue" onclick="nav('assign')">Smart Assign</button>
             <button class="btn btn-ghost" onclick="nav('alerts')">Review Alerts</button>
@@ -3175,7 +3175,7 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
       </div>
 
       <!-- LIVE INTELLIGENCE RIBBON -->
-      <div class="panel">
+      <div class="panel" id="ov-live-intelligence-panel" style="display:none">
         <div class="ph" style="padding:10px 16px">
           <h2>&#128161; Live Intelligence</h2>
           <span class="ph-note" id="ov-sum-note">Loading...</span>
@@ -3231,7 +3231,7 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
 
 
       <!-- NEW: Branch Health Scorecard -->
-      <div class="panel" id="ov-branch-scorecard-panel">
+      <div class="panel" id="ov-branch-scorecard-panel" style="display:none">
         <div class="ph"><h2>&#127963; Branch Health Scorecard</h2><span class="ph-note">Color-coded health per branch — click to filter</span></div>
         <div id="ov-branch-scorecard" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 16px 16px"></div>
       </div>
@@ -3242,7 +3242,7 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
           <div class="ph"><h2>&#128293; Top At-Risk Profiles</h2><span class="ph-note">Aging 170+ days — immediate follow-up needed</span></div>
           <div id="ov-atrisk" style="padding:10px 14px 14px"></div>
         </div>
-        <div class="panel">
+        <div class="panel" id="ov-trend-panel" style="display:none">
           <div class="ph"><h2>&#128200; 6-Month Trend</h2><span class="ph-note">Inflow (bars) vs PO placements (line)</span></div>
           <div id="ov-trend-chart" style="padding:12px 16px 14px"></div>
         </div>
