@@ -8788,7 +8788,7 @@ function renderAtRisk() {
         <span style="font-size:10px;font-weight:800;color:${riskCol}">${x.days}</span>
       </div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:10.5px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(x.name||' - ')}</div>
+        <div style="font-size:10.5px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(x.n||x.name||' - ')}</div>
         <div style="font-size:9px;color:var(--t3);margin-top:1px">${esc(x.tech||' - ')}  |  ${esc(x.rec||'Unassigned')}</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
@@ -8907,7 +8907,7 @@ function renderVisaUrgency() {
     return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd2)">
       <span style="font-size:8.5px;font-weight:700;padding:2px 7px;border-radius:99px;background:${col}20;color:${col};border:1px solid ${col}44;min-width:52px;text-align:center;flex-shrink:0">${esc(x.visa)}</span>
       <div style="flex:1;min-width:0">
-        <div style="font-size:10px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(x.name||' - ')}</div>
+        <div style="font-size:10px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(x.n||x.name||' - ')}</div>
         <div style="font-size:8.5px;color:var(--t3)">${esc(x.tech||' - ')}  |  ${esc(x.src||' - ')}</div>
       </div>
       <div style="text-align:right;flex-shrink:0">
@@ -10404,6 +10404,10 @@ window.renderOverviewAll = function() {
     }).join('');
   }
 
+  window.renderV12Hero = renderV12Hero;
+  window.renderV12Priorities = renderV12Priorities;
+  window.renderV12Branches = renderV12Branches;
+
   window.v12ToggleExpand = function() {
     const ov = document.getElementById('v-overview');
     if (!ov) return;
@@ -11306,6 +11310,27 @@ window.renderVisaUrgency = function() {
   }).join('');
 };
 renderVisaUrgency = window.renderVisaUrgency;
+</script>
+<script>
+(function finalOverviewStabilizer(){
+  window.renderOverviewAll = function() {
+    try { window.refreshV12Overview && window.refreshV12Overview(); } catch(e){}
+    try { window.renderOvStatStrip && window.renderOvStatStrip(); } catch(e){}
+    try { window.renderOvFunnel && window.renderOvFunnel(); } catch(e){}
+    try { window.renderOvVisaMix && window.renderOvVisaMix(); } catch(e){}
+    try { window.renderOvExpBands && window.renderOvExpBands(); } catch(e){}
+    try { window.populateOvFilterDropdowns && window.populateOvFilterDropdowns(); } catch(e){}
+    try { window.renderWL && window.renderWL(); } catch(e){}
+    try { window.renderOvTechBars && window.renderOvTechBars(); } catch(e){}
+    try { window.renderOvRecDist && window.renderOvRecDist(); } catch(e){}
+    try { window.renderOvTable && window.renderOvTable(); } catch(e){}
+    try { window.renderAtRisk && window.renderAtRisk(); } catch(e){}
+    try { window.renderTLMatrix && window.renderTLMatrix(); } catch(e){}
+    try { window.renderActionQueue && window.renderActionQueue(); } catch(e){}
+    try { window.renderVisaUrgency && window.renderVisaUrgency(); } catch(e){}
+    try { window.renderAgingDist && window.renderAgingDist(); } catch(e){}
+  };
+})();
 </script>
 <script>
 (function dashboardPerformancePatch(){
