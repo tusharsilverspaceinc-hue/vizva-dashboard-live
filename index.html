@@ -4467,6 +4467,62 @@ function updateBranchRecs(){
   if(recSel){recSel.innerHTML='<option value=""> -  Assign later  - </option>'+recs.map(r=>`<option>${esc(r)}</option>`).join('');}
   if(tlSel){tlSel.innerHTML='<option value=""> -  Auto from recruiter  - </option>'+tls.map(t=>`<option>${esc(t)}</option>`).join('');}
 }
+function smartAssignExpToYears(range){
+  if(range==='0-2') return 1;
+  if(range==='3-5') return 4;
+  if(range==='6-8') return 7;
+  if(range==='9-12') return 10;
+  if(range==='12+') return 13;
+  return '';
+}
+function openAddCandidateFromSmartAssign(prefill){
+  const data=prefill||{};
+  const branch=data.branch||document.getElementById('a-branch')?.value||'GGR';
+  const recruiter=data.rec||'';
+  const teamLead=data.tl||allData().find(x=>x.rec===recruiter&&x.src===branch)?.tl||'';
+  const tech=data.tech||document.getElementById('a-tech')?.value||'';
+  const visa=data.visa||document.getElementById('a-visa')?.value||'';
+  const expRange=data.expRange||document.getElementById('a-exp')?.value||'';
+  nav('add-candidate');
+  const branchEl=document.getElementById('nc-branch');
+  if(branchEl) branchEl.value=branch;
+  updateBranchRecs();
+  const recEl=document.getElementById('nc-rec');
+  if(recEl && recruiter){
+    if(![...recEl.options].some(o=>o.value===recruiter)){
+      recEl.add(new Option(recruiter,recruiter));
+    }
+    recEl.value=recruiter;
+  }
+  const tlEl=document.getElementById('nc-tl');
+  if(tlEl && teamLead){
+    if(![...tlEl.options].some(o=>o.value===teamLead)){
+      tlEl.add(new Option(teamLead,teamLead));
+    }
+    tlEl.value=teamLead;
+  }
+  const techEl=document.getElementById('nc-tech');
+  if(techEl && tech) techEl.value=tech;
+  const visaEl=document.getElementById('nc-visa');
+  if(visaEl && visa) visaEl.value=visa;
+  const expEl=document.getElementById('nc-exp');
+  if(expEl && expRange) expEl.value=smartAssignExpToYears(expRange);
+  const statusEl=document.getElementById('nc-status');
+  if(statusEl && !statusEl.value) statusEl.value='New';
+  const notesEl=document.getElementById('nc-notes');
+  if(notesEl){
+    const smartNote=`Smart Assign recommendation: ${recruiter}${teamLead?' | TL: '+teamLead:''}`;
+    notesEl.value=smartNote;
+  }
+  checkNewCandRules();
+  const successEl=document.getElementById('nc-success');
+  if(successEl) successEl.style.display='none';
+  setTimeout(()=>{
+    document.getElementById('nc-name')?.focus();
+    document.getElementById('nc-name')?.scrollIntoView({block:'center',behavior:'smooth'});
+  },60);
+  toast(`Add Candidate opened for ${recruiter||branch}`,'ok');
+}
 function checkNewCandRules(){
   const tech=document.getElementById('nc-tech')?.value;
   const visa=document.getElementById('nc-visa')?.value;
@@ -5446,7 +5502,7 @@ function runRec(){
         </div>
         <div class="sbar"><div class="sbarfill" style="width:${Math.min((row.workload/5)*100,100)}%;background:${loadColor}"></div></div>
         ${row.blocked?`<div class="note-box" style="margin-top:10px">${row.techBlocked?'Tech limit reached. ':''}${row.visaBlocked?'Premium visa limit reached.':''}</div>`:`<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:10px">
-          <button class="btn btn-blue btn-sm" style="justify-content:center" onclick="showAssignModal('${escJ(row.r)}','${escJ(row.src)}')">Assign</button>
+          <button class="btn btn-blue btn-sm" style="justify-content:center" onclick="openAddCandidateFromSmartAssign({rec:'${escJ(row.r)}',tl:'${escJ(row.tl||'')}',branch:'${escJ(row.src)}',tech:'${escJ(tech)}',visa:'${escJ(visa)}',expRange:'${escJ(expRange)}'})">Assign</button>
           <button class="btn btn-ghost btn-sm" style="justify-content:center;color:#38bdf8;border-color:#0078d455" onclick="showEmailModal({rec:'${escJ(row.r)}',tl:'${escJ(row.tl||'')}',candName:'',tech:'${escJ(tech)}',visa:'${escJ(visa)}'})">Email TL</button>
         </div>`}
       </div>`;
