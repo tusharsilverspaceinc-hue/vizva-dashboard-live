@@ -6073,8 +6073,9 @@ function renderCleanBarChart(containerId, data, total, options){
 
 // â”€â”€ KPI Card builder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function buildKpiCard(icon,title,val,sub,col,extra){
+  const showIcon = !!String(icon||'').trim() && /[^\x00-\x7F]/.test(String(icon||'')) && !/[âð]/.test(String(icon||''));
   return`<div class="kpi" style="border-left:none"><div class="kpi-bar" style="background:${col}"></div>
-    <div style="font-size:19px;margin-bottom:5px">${icon}</div>
+    ${showIcon?`<div style="font-size:19px;margin-bottom:5px">${icon}</div>`:''}
     <div class="kpi-lbl" style="color:var(--t3)">${title}</div>
     <div class="kpi-val" style="color:${col};font-size:26px">${val}</div>
     <div class="kpi-sub">${sub}</div>
@@ -6410,13 +6411,13 @@ function renderAnalytics(){
   const kpiEl=document.getElementById('ana-kpi-strip');
   const backouts=d.filter(x=>x.backout).length;
   if(kpiEl)kpiEl.innerHTML=[
-    {ic:'Chart',t:'Total',v:total,s:'profiles in filter scope',c:'var(--blue)'},
-    {ic:'OK',t:'Active',v:active,s:Math.round(active/Math.max(total,1)*100)+'% of scope',c:'var(--green)'},
-    {ic:'PO',t:'PO Rate',v:placementRate+'%',s:po+' placed profiles',c:'var(--purple)'},
-    {ic:'Aging',t:'Aging 170+',v:aging170,s:aging170>0?Math.round(aging170/Math.max(total,1)*100)+'%  -  critical':'All healthy',c:aging170>0?'var(--red)':'var(--green)'},
-    {ic:'âš¡',t:'Aging 40+',v:aging40,s:Math.round(aging40/Math.max(total,1)*100)+'% need follow-up',c:'var(--orange)'},
-    {ic:'Sync',t:'Unassigned',v:unassigned,s:unassigned>0?Math.round(unassigned/Math.max(total,1)*100)+'% without recruiter':'All assigned',c:unassigned>0?'var(--teal)':'var(--green)'},
-    {ic:'<-',t:'Backouts',v:backouts,s:Math.round(backouts/Math.max(total,1)*100)+'% backout rate',c:'var(--amber)'},
+    {ic:'',t:'Total',v:total,s:'profiles in filter scope',c:'var(--blue)'},
+    {ic:'',t:'Active',v:active,s:Math.round(active/Math.max(total,1)*100)+'% of scope',c:'var(--green)'},
+    {ic:'',t:'PO Rate',v:placementRate+'%',s:po+' placed profiles',c:'var(--purple)'},
+    {ic:'',t:'Aging 170+',v:aging170,s:aging170>0?Math.round(aging170/Math.max(total,1)*100)+'%  -  critical':'All healthy',c:aging170>0?'var(--red)':'var(--green)'},
+    {ic:'',t:'Aging 40+',v:aging40,s:Math.round(aging40/Math.max(total,1)*100)+'% need follow-up',c:'var(--orange)'},
+    {ic:'',t:'Unassigned',v:unassigned,s:unassigned>0?Math.round(unassigned/Math.max(total,1)*100)+'% without recruiter':'All assigned',c:unassigned>0?'var(--teal)':'var(--green)'},
+    {ic:'',t:'Backouts',v:backouts,s:Math.round(backouts/Math.max(total,1)*100)+'% backout rate',c:'var(--amber)'},
   ].map(k=>buildKpiCard(k.ic,k.t,k.v,k.s,k.c)).join('');
 
   // â”€â”€ CLEAN the data before charting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
