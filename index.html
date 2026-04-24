@@ -8955,16 +8955,21 @@ function renderAgingDist() {
 
 // â”€â”€ MASTER: renderOverviewAll â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 window.renderOverviewAll = function() {
+  try { renderV12Hero && renderV12Hero(); } catch(e){}
+  try { renderV12Priorities && renderV12Priorities(); } catch(e){}
+  try { renderV12Branches && renderV12Branches(); } catch(e){}
   // Existing renderers
   try { renderOvStatStrip && renderOvStatStrip(); } catch(e){}
   try { renderIntelRibbon && renderIntelRibbon(); } catch(e){}
   try { renderOvFunnel && renderOvFunnel(); } catch(e){}
   try { renderOvVisaMix && renderOvVisaMix(); } catch(e){}
   try { renderOvExpBands && renderOvExpBands(); } catch(e){}
+  try { populateOvFilterDropdowns && populateOvFilterDropdowns(); } catch(e){}
   try { renderWL && renderWL(); } catch(e){}
   try { renderOvTechBars && renderOvTechBars(); } catch(e){}
   try { renderOvRecDist && renderOvRecDist(); } catch(e){}
   try { renderOvTable && renderOvTable(); } catch(e){}
+  try { renderOvInsightRibbon && renderOvInsightRibbon(); } catch(e){}
   // Hero stats
   try {
     const d=allData();
