@@ -110,13 +110,28 @@ code,.mono{font-family:var(--mono)}
 #v-profiles.on{display:flex!important;flex-direction:column;min-height:calc(100vh - 128px)}
 #v-profiles>.panel{display:flex;flex-direction:column;flex:1;min-height:0}
 #pf-tbl{flex:1;min-height:0;max-height:none!important;overflow:auto}
-#pf-tbl table{table-layout:fixed}
-#pf-tbl td:first-child{max-width:220px}
-#pf-tbl td:nth-child(11){max-width:230px}
-#pf-tbl td:nth-child(12){max-width:150px}
+#pf-tbl table.pf-table{table-layout:auto;min-width:1400px}
+#pf-tbl table.pf-table thead th{padding:10px 12px;font-size:8.5px}
+#pf-tbl table.pf-table tbody td{padding:11px 12px;line-height:1.35;vertical-align:top}
+#pf-tbl table.pf-table tbody tr:nth-child(even){background:rgba(255,255,255,.015)}
+#pf-tbl table.pf-table tbody tr:hover{background:var(--s4)}
+#pf-tbl .pf-col-name{min-width:220px}
+#pf-tbl .pf-col-rec,#pf-tbl .pf-col-tl{min-width:140px}
+#pf-tbl .pf-col-role{min-width:170px}
+#pf-tbl .pf-col-visa{min-width:92px}
+#pf-tbl .pf-col-exp,#pf-tbl .pf-col-days,#pf-tbl .pf-col-ead{min-width:84px}
+#pf-tbl .pf-col-status{min-width:110px}
+#pf-tbl .pf-col-branch{min-width:90px}
+#pf-tbl .pf-col-email{min-width:240px;white-space:normal;word-break:break-word}
+#pf-tbl .pf-col-phone{min-width:150px}
+#pf-tbl .pf-col-actions{min-width:120px}
+#pf-tbl .pf-name-cell{white-space:normal;overflow:visible;text-overflow:clip}
+#pf-tbl .pf-name-text{display:block;white-space:normal;word-break:break-word}
+#pf-tbl .pf-muted{display:block;font-size:10px;color:var(--t3);margin-top:3px}
 @media (max-width: 900px){
   #v-profiles.on{min-height:auto}
   #pf-tbl{max-height:calc(100vh - 250px)!important}
+  #pf-tbl table.pf-table{min-width:1280px}
 }
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
@@ -5455,7 +5470,7 @@ function buildTbl(id, rows, actions){
       const isExp=d.expIn>0&&d.expIn<=60&&d.st!=='PO';
       const cls=d.st==='PO'?'r-po':ag?'r-aging':isExp?'r-exp':'';
       const isNew=d._new||d._added;
-      const act=actions?`<td><div style="display:flex;gap:3px;flex-wrap:nowrap">
+      const act=actions?`<td class="pf-col-actions"><div style="display:flex;gap:3px;flex-wrap:nowrap">
         <select class="qe-select" title="Status" onchange="qkStatus('${escJ(d.n)}','${escJ(d.rec||'')}',this.value);this.value=''" style="color:${d.st==='Active'?'var(--green)':d.st==='PO'?'var(--purple)':'var(--amber)'}">
           <option value="">St</option>
           ${STATUSES.map(s=>`<option value="${s}"${d.st===s?' selected':''}>${s}</option>`).join('')}
@@ -5464,26 +5479,26 @@ function buildTbl(id, rows, actions){
         <button class="btn btn-amber btn-xs" onclick="event.stopPropagation();qkStatus('${escJ(d.n)}','${escJ(d.rec||'')}','PO')">PO</button>
       </div></td>`:'';
       return`<tr class="${cls}${isNew?' r-new':''}" onclick="showProfModal('${escJ(d.n)}','${escJ(d.rec||'')}')">
-        <td><div style="display:flex;align-items:center;gap:4px;min-width:0">
-          <span title="${esc(d.n)}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${d.n.length>24?esc(d.n.slice(0,24))+'...':esc(d.n)}${ag?' <span style="color:var(--orange);font-size:9px">&#128293;</span>':''}</span>
+        <td class="pf-col-name"><div class="pf-name-cell" style="display:flex;align-items:flex-start;gap:6px;min-width:0">
+          <span title="${esc(d.n)}" class="pf-name-text">${esc(d.n)}${ag?' <span style="color:var(--orange);font-size:9px">&#128293;</span>':''}</span>
         </div></td>
-        <td>${esc(d.rec||' - ')}</td>
-        <td>${esc(d.tl||' - ')}</td>
-        <td>${esc(d.tech||' - ')}</td>
-        <td>${vBadge(d.visa)}</td>
-        <td>${d.exp||0}y</td>
-        <td>${stBadge(d.st,d.backout)}</td>
-        <td>${brBadge(d.src||'GGR')}</td>
-        <td>${xExp(d.expIn)}</td>
-        <td>${xDays(d.days)}</td>
-        <td title="${esc(d.email||'Ã¢â‚¬"')}">${esc(d.email||'Ã¢â‚¬"')}</td>
-        <td title="${esc(formatPhoneDisplay(d.phone))}">${esc(formatPhoneDisplay(d.phone))}</td>
+        <td class="pf-col-rec">${esc(d.rec||' - ')}</td>
+        <td class="pf-col-tl">${esc(d.tl||' - ')}</td>
+        <td class="pf-col-role">${esc(d.tech||' - ')}</td>
+        <td class="pf-col-visa">${vBadge(d.visa)}</td>
+        <td class="pf-col-exp">${d.exp||0}y</td>
+        <td class="pf-col-status">${stBadge(d.st,d.backout)}</td>
+        <td class="pf-col-branch">${brBadge(d.src||'GGR')}</td>
+        <td class="pf-col-ead">${xExp(d.expIn)}</td>
+        <td class="pf-col-days">${xDays(d.days)}</td>
+        <td class="pf-col-email" title="${esc(d.email||'Ã¢â‚¬"')}">${esc(d.email||'Ã¢â‚¬"')}</td>
+        <td class="pf-col-phone" title="${esc(formatPhoneDisplay(d.phone))}">${esc(formatPhoneDisplay(d.phone))}</td>
         ${act}
       </tr>`;
     }catch(e){return'';}
   }).join('');
-  const ah=actions?'<th>Actions</th>':'';
-  document.getElementById(id).innerHTML=`<table><thead><tr><th>Candidate</th><th>Recruiter</th><th>TL</th><th>Role</th><th>Visa</th><th>Exp</th><th>Status</th><th>Branch</th><th>EAD</th><th>Days</th><th>Email</th><th>Phone</th>${ah}</tr></thead><tbody>${html2||'<tr><td colspan="13" style="text-align:center;padding:32px;color:var(--t3)">No profiles match the current filters</td></tr>'}</tbody></table>`;
+  const ah=actions?'<th class="pf-col-actions">Actions</th>':'';
+  document.getElementById(id).innerHTML=`<table class="pf-table"><thead><tr><th class="pf-col-name">Candidate</th><th class="pf-col-rec">Recruiter</th><th class="pf-col-tl">TL</th><th class="pf-col-role">Role</th><th class="pf-col-visa">Visa</th><th class="pf-col-exp">Exp</th><th class="pf-col-status">Status</th><th class="pf-col-branch">Branch</th><th class="pf-col-ead">EAD</th><th class="pf-col-days">Days</th><th class="pf-col-email">Email</th><th class="pf-col-phone">Phone</th>${ah}</tr></thead><tbody>${html2||'<tr><td colspan="13" style="text-align:center;padding:32px;color:var(--t3)">No profiles match the current filters</td></tr>'}</tbody></table>`;
 }
 
 // Quick inline operations
