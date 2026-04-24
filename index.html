@@ -4963,11 +4963,13 @@ function changeTL(rec){const newTL=document.getElementById('tl-chg')?.value;if(!
 
 // â•â•â• EMAIL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 let _att=[];
+let _emSavedCandidateId='';
 function triggerEmailAfterAdd(profile,tl,tlEmail,fromEmail){
   showEmailModal({rec:profile.rec,tl,candName:profile.n,tech:profile.tech,visa:profile.visa,toEmail:tlEmail,from:fromEmail});
 }
 function showEmailModal(p){
   p = p || {}; _att = [];
+  _emSavedCandidateId = '';
   const tls = getAllTLs();
   const allD = allData();
   const avail = allD.filter(x => x.st === 'New' || x.st === 'Active').slice(0, 100);
@@ -5021,8 +5023,8 @@ function showEmailModal(p){
       <!-- Rule check inline -->
       <div id="em-rule-check" style="margin-bottom:12px"></div>
       <div style="display:flex;gap:10px">
-        <button class="btn btn-teal" onclick="emSaveAndProceed()" style="flex:1;justify-content:center">Save to System &amp; Go to Email &#8594;</button>
-        <button class="btn btn-ghost" onclick="switchEmTab('compose')">Skip -> Go to Email</button>
+        <button class="btn btn-teal" onclick="emSaveAndProceed()" style="flex:1;justify-content:center">Add Candidate to System &amp; Go to Email &#8594;</button>
+        <button class="btn btn-ghost" onclick="switchEmTab('compose')">Go to Email</button>
       </div>
     </div>
 
@@ -5141,14 +5143,23 @@ function emAutoUpdateBody(){
 }
 
 function emSaveAndProceed(){
+  emSaveCandidateToSystem().then(saved=>{
+    if(!saved) return;
+    emAutoUpdateBody();
+    switchEmTab('compose');
+  });
+}
+async function emSaveCandidateToSystem(){
+  if(_emSavedCandidateId) return _emSavedCandidateId;
   const name = document.getElementById('em-nc-name')?.value?.trim();
   const tech = document.getElementById('em-nc-tech')?.value;
   const visa = document.getElementById('em-nc-visa')?.value;
-  if(!name){ toast('Enter candidate name','amber'); return; }
-  if(!tech){ toast('Select a tech/role','amber'); return; }
-  if(!visa){ toast('Select visa status','amber'); return; }
+  if(!name){ toast('Enter candidate name','amber'); return ''; }
+  if(!tech){ toast('Select a tech/role','amber'); return ''; }
+  if(!visa){ toast('Select visa status','amber'); return ''; }
   const branch = document.getElementById('em-nc-branch')?.value || 'GGR';
   const rec    = document.getElementById('em-nc-rec')?.value || '';
+  const tl     = document.getElementById('em-tl')?.value || '';
   const exp    = parseInt(document.getElementById('em-nc-exp')?.value) || 0;
   const loc    = document.getElementById('em-nc-loc')?.value || '';
   const ead    = document.getElementById('em-nc-ead')?.value || '';
@@ -5156,19 +5167,28 @@ function emSaveAndProceed(){
   const days   = parseInt(document.getElementById('em-nc-days')?.value) || 0;
   const notes  = document.getElementById('em-nc-notes')?.value || '';
   const vcs    = document.getElementById('em-nc-vcs')?.value || 'VCS';
-  // Save to system
-  S.added.push({
+  const newProfile={
     _id:'add_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),
-    n:name, rec, tl:'', src:branch, br:brName(branch),
-    st:'New', exp, tech, visa, ead, expIn:null, days, loc, mkt, vcs,
-    _new:true, _added:true, _addedAt:new Date().toISOString(), notes
-  });
-  if(rec){ S.log.push({id:Date.now(),cand:name,rec,branch,role:tech,visa,note:'Added via Email modal',ts:new Date().toISOString()}); }
-  saveS(); refreshAll();
-  toast(`${name.split(' ')[0]} saved to ${branch}  -  now visible in dashboard`,'ok');
+    n:name, rec, tl, src:branch, br:brName(branch),
+    st:'New', exp, tech, visa, ead, eadStart:'', expIn:null, days, loc, mkt, vcs,
+    ack:'', email:'', phone:'', notes,
+    _new:true, _added:true, _addedAt:new Date().toISOString()
+  };
+  S.added.push(newProfile);
+  if(rec){ S.log.push({id:Date.now(),cand:name,rec,branch,role:tech,visa,note:'Added via Email TL flow',ts:new Date().toISOString()}); }
+  saveS(); refreshAll(); renderRecentAdded?.();
+  let syncMsg='Saved in dashboard';
+  try{
+    const syncResult=await syncCandidateToBranchSheet(newProfile);
+    if(syncResult?.ok) syncMsg='Synced to branch sheet';
+  }catch(err){
+    syncMsg='Sheet sync failed';
+    toast(String(err?.message||err||'Sheet sync failed'),'amber');
+  }
+  _emSavedCandidateId=newProfile._id;
+  toast(`${name.split(' ')[0]} added to ${branch}. ${syncMsg}`,'ok');
   // Update email compose with full details and switch to compose tab
-  emAutoUpdateBody();
-  switchEmTab('compose');
+  return _emSavedCandidateId;
 }
 
 
@@ -5190,7 +5210,12 @@ function emDrop(e){e.preventDefault();[...(e.dataTransfer?.files||[])].forEach(e
 function emAttach(e){[...e.target.files].forEach(emRead);}
 function emRead(f){const fr=new FileReader();fr.onload=e=>{_att.push({name:f.name,size:f.size,type:f.type});renderAttList();};fr.readAsDataURL(f);}
 function renderAttList(){document.getElementById('att-list').innerHTML=_att.map((a,i)=>`<div class="attach-item"><span>${a.type.includes('pdf')?'File':'Attach'}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.name)}</span><span style="font-size:9px;color:var(--t3)">${(a.size/1024).toFixed(1)}KB</span><button class="attach-rm" onclick="_att.splice(${i},1);renderAttList()">x</button></div>`).join('');}
-function sendEmail(){
+async function sendEmail(){
+  const nameField=document.getElementById('em-nc-name');
+  if(nameField && nameField.value?.trim() && !_emSavedCandidateId){
+    const saved=await emSaveCandidateToSystem();
+    if(!saved) return;
+  }
   const toEmail=document.getElementById('em-email')?.value?.trim();
   const subj=document.getElementById('em-subj')?.value?.trim();
   const body=document.getElementById('em-body')?.value?.trim();
