@@ -11203,6 +11203,10 @@ window.renderOverviewAll = function() {
     ['Â·',' | '],
     ['â†’','->'],
     ['â†','<-'],
+    ['â˜…','BEST'],
+    ['â˜€','ST'],
+    ['â—†','HD'],
+    ['â‡§','Shift'],
     ['âš¡','Sync'],
     ['â–¶','Active'],
     ['â¸','Hold'],
@@ -11223,7 +11227,7 @@ window.renderOverviewAll = function() {
         if (!parent) return NodeFilter.FILTER_REJECT;
         const tag = parent.nodeName;
         if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT') return NodeFilter.FILTER_REJECT;
-        return node.nodeValue && /(ðŸ|âœ|â†|ï¸|Â·|â€”|â€“|â€¢|â€¦|â‰¤|âš|âŒ˜|â¬‡)/.test(node.nodeValue)
+        return node.nodeValue && /(ðŸ|âœ|â†|ï¸|Â·|â€”|â€“|â€¢|â€¦|â‰¤|âš|âŒ˜|â¬‡|â˜|â—|â|â­|â‡)/.test(node.nodeValue)
           ? NodeFilter.FILTER_ACCEPT
           : NodeFilter.FILTER_SKIP;
       }
@@ -11238,10 +11242,26 @@ window.renderOverviewAll = function() {
     root.querySelectorAll?.('[title],[placeholder],[aria-label]').forEach(el => {
       ['title','placeholder','aria-label'].forEach(attr => {
         const value = el.getAttribute(attr);
-        if (value && /(ðŸ|âœ|â†|ï¸|Â·|â€”|â€“|â€¢|â€¦|â‰¤|âš|âŒ˜|â¬‡)/.test(value)) {
+        if (value && /(ðŸ|âœ|â†|ï¸|Â·|â€”|â€“|â€¢|â€¦|â‰¤|âš|âŒ˜|â¬‡|â˜|â—|â|â­|â‡)/.test(value)) {
           el.setAttribute(attr, fixText(value));
         }
       });
+    });
+  }
+
+  function normalizeKnownUiTokens(root) {
+    if (!root?.querySelectorAll) return;
+    root.querySelectorAll('.theme-switch .theme-pill').forEach((el, idx) => {
+      const wanted = ['ST','HD','LX'][idx] || '';
+      if (wanted) el.textContent = wanted;
+    });
+    root.querySelectorAll('.kpi, .ov-stat, .hero-stat, .v13-src-card, .v12-branch-card, .ov-insight-pill, .v13-wiz-step, .btn').forEach(el => {
+      const txt = el.textContent || '';
+      if (/(â˜|â—|âš|â–|â|â­|â‡|ðŸ|âœ|â†|ï¸|Â·)/.test(txt)) {
+        el.childNodes.forEach(node => {
+          if (node.nodeType === Node.TEXT_NODE) node.nodeValue = fixText(node.nodeValue);
+        });
+      }
     });
   }
 
@@ -11251,6 +11271,7 @@ window.renderOverviewAll = function() {
     normalizeTimer = setTimeout(() => {
       normalizeTimer = null;
       normalizeNodeText(root);
+      normalizeKnownUiTokens(root);
     }, 30);
   }
 
