@@ -107,6 +107,17 @@ code,.mono{font-family:var(--mono)}
 .main{display:flex;flex-direction:column;overflow:hidden}
 .content{flex:1;overflow-y:auto;padding:16px 18px;scroll-behavior:smooth}
 .view{display:none}.view.on{display:block!important;animation:fadeIn .18s ease}
+#v-profiles.on{display:flex!important;flex-direction:column;min-height:calc(100vh - 128px)}
+#v-profiles>.panel{display:flex;flex-direction:column;flex:1;min-height:0}
+#pf-tbl{flex:1;min-height:0;max-height:none!important;overflow:auto}
+#pf-tbl table{table-layout:fixed}
+#pf-tbl td:first-child{max-width:220px}
+#pf-tbl td:nth-child(11){max-width:230px}
+#pf-tbl td:nth-child(12){max-width:150px}
+@media (max-width: 900px){
+  #v-profiles.on{min-height:auto}
+  #pf-tbl{max-height:calc(100vh - 250px)!important}
+}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
 /* LAYOUT */
@@ -3514,10 +3525,10 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
     <div class="view" id="v-profiles">
       <div class="panel">
         <div class="ph">
-          <h2>Profiles All Profiles</h2>
+          <h2>All Profiles</h2>
           <span class="ph-note" id="pf-cnt"></span>
           <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-left:auto">
-            <button class="btn btn-ghost btn-sm" onclick="exportAllProfiles()">Down Export CSV</button>
+            <button class="btn btn-ghost btn-sm" onclick="exportAllProfiles()">Export CSV</button>
             <button class="btn btn-teal btn-sm" onclick="nav('add-candidate')">+ Add Candidate</button>
           </div>
         </div>
@@ -3548,7 +3559,7 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
             </button>
           </div>
         </div>
-        <div class="tw mh5" id="pf-tbl"></div>
+        <div class="tw pf-tw" id="pf-tbl"></div>
       </div>
     </div>
 
@@ -5494,7 +5505,14 @@ function qkTL(n, rec, newTL){
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // UPDATED renderProfiles  -  includes category filter
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-function renderProfiles(){
+let pfRenderRaf=0;
+function renderProfilesNow(){
+  const profilesView=document.getElementById('v-profiles');
+  if(profilesView && !profilesView.classList.contains('on')){
+    window.__pfNeedsRender=true;
+    return;
+  }
+  window.__pfNeedsRender=false;
   let d = allData();
   const filters=[['pf-br','src'],['pf-tl','tl'],['pf-rec','rec'],['pf-tech','tech'],['pf-visa','visa']];
   filters.forEach(([id,k])=>{const v=document.getElementById(id)?.value;if(v)d=d.filter(x=>x[k]===v);});
@@ -5514,6 +5532,13 @@ function renderProfiles(){
   if(q)d=d.filter(x=>(x.n+x.rec+x.tech+x.visa+x.tl+x.st+x.loc).toLowerCase().includes(q));
   document.getElementById('pf-cnt').textContent=d.length+' profiles';
   buildTbl('pf-tbl',d,true);
+}
+function renderProfiles(){
+  if(pfRenderRaf) cancelAnimationFrame(pfRenderRaf);
+  pfRenderRaf=requestAnimationFrame(()=>{
+    pfRenderRaf=0;
+    renderProfilesNow();
+  });
 }
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
