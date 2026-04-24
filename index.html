@@ -9513,12 +9513,12 @@ window.renderOverviewAll = function() {
       // Keep very short sentinel messages; enrich only generic ones
       if (/^(no\s)|^ - $|loading/i.test(text) && text.length < 80) {
         const context = el.closest('[id]')?.id || '';
-        let cfg = { title: text, desc: 'When there are results, they'll appear here.', icon: 'inbox' };
+        let cfg = { title: text, desc: 'When there are results, they will appear here.', icon: 'inbox' };
         if (/log/i.test(context)) cfg = { title: 'No assignments yet', desc: 'Assignments you make will appear in this log with timestamps and recruiter details.', icon: 'inbox' };
         if (/recent/i.test(context)) cfg = { title: 'No candidates added yet', desc: 'Added candidates appear here immediately. Use the form above to add your first.', icon: 'users', actions: [{label:'Focus name', onclick: "document.getElementById('nc-name').focus()"}] };
         if (/alerts-body/i.test(context)) cfg = { title: 'All clear', desc: 'No aging profiles or overloaded recruiters right now. Great work.', icon: 'check' };
         if (/po-tbl/i.test(context)) cfg = { title: 'No PO placements yet', desc: 'When recruiters close placements, they appear here. Mark a profile as PO from any card.', icon: 'check' };
-        if (/rec-out/i.test(context)) cfg = { title: 'Set filters & get recommendations', desc: 'Choose a tech stack, visa, and experience level  -  we'll rank the best available recruiters matching Vizva rules.', icon: 'search' };
+        if (/rec-out/i.test(context)) cfg = { title: 'Set filters & get recommendations', desc: 'Choose a tech stack, visa, and experience level  -  we will rank the best available recruiters matching Vizva rules.', icon: 'search' };
         el.outerHTML = window.v11Empty(cfg);
       }
     });
