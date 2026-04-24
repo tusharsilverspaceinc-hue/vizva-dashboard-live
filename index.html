@@ -3488,11 +3488,6 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
         <div class="panel analytics-chart-panel"><div class="ph"><h2>Branch &times; Tech Stack</h2></div><div class="hm-wrap chart-pad" id="hm-branch-tech"></div></div>
         <div class="panel analytics-chart-panel"><div class="ph"><h2>Team Lead &times; Visa</h2></div><div class="hm-wrap chart-pad" id="hm-tl-visa"></div></div>
       </div>
-      <div class="chart-lib-header">
-        <strong>Advanced Charts</strong>
-        <div class="chart-lib-divider"></div>
-        <span>All charts use the current filtered dataset</span>
-      </div>
       <div class="chart-library-grid">
         <div class="panel analytics-chart-panel"><div class="ph"><h2>&#128200; Monthly Inflow</h2><span class="ph-note">Profile marketing start dates over 6 months</span></div><div id="ana-line-chart" class="chart-surface"></div></div>
         <div class="panel analytics-chart-panel"><div class="ph"><h2>&#128202; Active Profile Trend</h2><span class="ph-note">Active pipeline volume over 6 months</span></div><div id="ana-area-chart" class="chart-surface"></div></div>
@@ -11123,6 +11118,112 @@ window.renderOverviewAll = function() {
 
 })();
 
+</script>
+<script>
+(function dashboardTextFixPatch(){
+  const replacements = [
+    ['ðŸ“Š','📊'],
+    ['ðŸ“‹','📋'],
+    ['ðŸŽ¯','🎯'],
+    ['ðŸ”¥','🔥'],
+    ['ðŸ†','🏆'],
+    ['ðŸ’¡','💡'],
+    ['ðŸ“§','📧'],
+    ['ðŸ“Ž','📎'],
+    ['ðŸ“„','📄'],
+    ['ðŸ“ˆ','📈'],
+    ['ðŸ“‰','📉'],
+    ['ðŸ”µ','🔵'],
+    ['ðŸš«','🚫'],
+    ['âœ…','✅'],
+    ['âœ“','✓'],
+    ['âœ¦','✦'],
+    ['âš ï¸','⚠️'],
+    ['âš ','⚠'],
+    ['âŒ˜','⌘'],
+    ['â¬‡','⬇'],
+    ['â€¦','…'],
+    ['â‰¤','≤'],
+    ['â€“','–'],
+    ['â€”','—'],
+    ['Â·','·'],
+    ['â€¢','•'],
+    ['â†’','→'],
+    ['â†','←'],
+    ['â†’','→']
+  ];
+
+  function fixText(value) {
+    let out = String(value || '');
+    for (const [bad, good] of replacements) out = out.split(bad).join(good);
+    return out;
+  }
+
+  function normalizeNodeText(root) {
+    if (!root) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        const parent = node.parentNode;
+        if (!parent) return NodeFilter.FILTER_REJECT;
+        const tag = parent.nodeName;
+        if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT') return NodeFilter.FILTER_REJECT;
+        return node.nodeValue && /ðŸ|âœ|â†|ï¸|â€”|Â·|â€“|â€¢|â€¦|â‰¤|âš|âŒ˜|â¬‡/.test(node.nodeValue)
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_SKIP;
+      }
+    });
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+    textNodes.forEach(node => {
+      const fixed = fixText(node.nodeValue);
+      if (fixed !== node.nodeValue) node.nodeValue = fixed;
+    });
+
+    root.querySelectorAll?.('[title],[placeholder],[aria-label]').forEach(el => {
+      ['title','placeholder','aria-label'].forEach(attr => {
+        const value = el.getAttribute(attr);
+        if (value && /ðŸ|âœ|â†|ï¸|â€”|Â·|â€“|â€¢|â€¦|â‰¤|âš|âŒ˜|â¬‡/.test(value)) {
+          el.setAttribute(attr, fixText(value));
+        }
+      });
+    });
+  }
+
+  let normalizeTimer = null;
+  function scheduleNormalize(root = document.body) {
+    if (normalizeTimer) clearTimeout(normalizeTimer);
+    normalizeTimer = setTimeout(() => {
+      normalizeTimer = null;
+      normalizeNodeText(root);
+    }, 30);
+  }
+
+  window.fixDashboardText = fixText;
+  window.normalizeDashboardText = normalizeNodeText;
+
+  if (typeof window.nav === 'function') {
+    const _nav = window.nav;
+    window.nav = function(v) {
+      _nav.apply(this, arguments);
+      scheduleNormalize(document.getElementById('app') || document.body);
+    };
+  }
+
+  if (typeof window.refreshAll === 'function') {
+    const _refresh = window.refreshAll;
+    window.refreshAll = function() {
+      _refresh.apply(this, arguments);
+      scheduleNormalize(document.getElementById('app') || document.body);
+    };
+  }
+
+  if (document.readyState !== 'loading') scheduleNormalize(document.body);
+  else document.addEventListener('DOMContentLoaded', () => scheduleNormalize(document.body));
+
+  const observer = new MutationObserver(() => scheduleNormalize(document.getElementById('app') || document.body));
+  if (document.body) observer.observe(document.body, { childList: true, subtree: true });
+  else document.addEventListener('DOMContentLoaded', () => observer.observe(document.body, { childList: true, subtree: true }), { once: true });
+})();
 </script>
 <script>
 function ovName(x){return String((x && (x.n||x.name||x.candidate)) || '').trim();}
