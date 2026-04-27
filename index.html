@@ -4394,7 +4394,7 @@ function makeHM(rows,cols,data,rl,cl){
   if(!rows.length||!cols.length)return'<div class="empty">No data</div>';
   const vals=rows.flatMap(r=>cols.map(c=>data[r]?.[c]||0));
   const mx=Math.max(...vals,1);
-  const head=`<tr><th style="text-align:left;min-width:110px">${rl}</th>${cols.map(c=>`<th title="${esc(c)}">${esc(c.length>9?c.slice(0,9)+'...':c)}</th>`).join('')}<th>Total</th></tr>`;
+  const head=`<tr><th style="text-align:left;min-width:150px">${rl}</th>${cols.map(c=>`<th title="${esc(c)}">${esc(c.length>12?c.slice(0,12)+'...':c)}</th>`).join('')}<th>Total</th></tr>`;
   const body=rows.map(r=>{
     const rt=cols.reduce((s,c)=>s+(data[r]?.[c]||0),0);
     const cells=cols.map(c=>{
@@ -4403,7 +4403,7 @@ function makeHM(rows,cols,data,rl,cl){
       const tc=p>0.5?'#fff':'var(--t2)';
       return`<td style="background:${bg};color:${v>0?tc:'var(--t4)'}">${v||' - '}</td>`;
     }).join('');
-    return`<tr><th class="hm-rh">${esc(r)}</th>${cells}<td class="hm-total">${rt}</td></tr>`;
+    return`<tr><th class="hm-rh" title="${esc(r)}">${esc(r)}</th>${cells}<td class="hm-total">${rt}</td></tr>`;
   }).join('');
   return`<table class="hm-table"><thead>${head}</thead><tbody>${body}</tbody></table>`;
 }
@@ -6656,16 +6656,31 @@ function renderAnalytics(){
 
   // â”€â”€ Heatmaps â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const brtk={},tlvs={};
+  const branchOrder=['Gurgaon','Lucknow','Ahmedabad'];
   d.forEach(x=>{
     const t=cleanTech(x.tech),v=cleanVisa(x.visa);
     if(x.src&&t&&t!=='Other'){const b=brName(x.src);if(!brtk[b])brtk[b]={};brtk[b][t]=(brtk[b][t]||0)+1;}
-    if(x.tl&&v&&v!=='Unknown'){if(!tlvs[x.tl])tlvs[x.tl]={};tlvs[x.tl][v]=(tlvs[x.tl][v]||0)+1;}
+    if(x.tl&&v&&v!=='Unknown'){
+      const tlKey=`${x.src||'GGR'} • ${x.tl}`;
+      if(!tlvs[tlKey])tlvs[tlKey]={};
+      tlvs[tlKey][v]=(tlvs[tlKey][v]||0)+1;
+    }
   });
-  // For heatmap limit to top 8 tech
-  const topTech=Object.entries(techMap).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k])=>k);
+  const branchRows=branchOrder.filter(b=>brtk[b]);
+  const topTech=Object.entries(techMap).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k])=>k);
   const topVisa=['OPT','STEM OPT','H1B','GC','USC','H4-EAD','CPT'];
-  document.getElementById('hm-branch-tech').innerHTML=makeHM(Object.keys(brtk),topTech,brtk,'Branch','Tech Stack');
-  document.getElementById('hm-tl-visa').innerHTML=makeHM(Object.keys(tlvs).slice(0,9),topVisa,tlvs,'Team Lead','Visa');
+  const tlRows=Object.keys(tlvs).sort((a,b)=>{
+    const [aBranch,aName]=a.split(' • ');
+    const [bBranch,bName]=b.split(' • ');
+    const branchDiff=branchOrder.indexOf(brName(aBranch)||aBranch)-branchOrder.indexOf(brName(bBranch)||bBranch);
+    if(branchDiff!==0) return branchDiff;
+    const totalA=topVisa.reduce((s,c)=>s+(tlvs[a]?.[c]||0),0);
+    const totalB=topVisa.reduce((s,c)=>s+(tlvs[b]?.[c]||0),0);
+    if(totalB!==totalA) return totalB-totalA;
+    return aName.localeCompare(bName);
+  });
+  document.getElementById('hm-branch-tech').innerHTML=makeHM(branchRows,topTech,brtk,'Branch','Tech Stack');
+  document.getElementById('hm-tl-visa').innerHTML=makeHM(tlRows,topVisa,tlvs,'Team Lead','Visa');
 
   const recBars=[...new Set(d.filter(x=>x.rec&&x.rec.trim()).map(x=>x.rec))].map((r,i)=>({
     label:r,
