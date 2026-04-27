@@ -75,6 +75,10 @@ code,.mono{font-family:var(--mono)}
 .brand-name{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.01em;line-height:1.3}
 .brand-sub{font-size:9px;color:var(--t3);margin-top:2px;font-family:'JetBrains Mono',monospace;letter-spacing:.06em}
 .live-dot{display:inline-flex;align-items:center;gap:5px;margin-top:9px;font-size:8px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--green)}
+.brand-logo{border:1px solid rgba(255,255,255,.2)}
+body[data-theme="stripe"] .brand-logo{box-shadow:0 24px 46px rgba(0,0,0,.22),0 14px 28px rgba(79,142,247,.12)}
+body[data-theme="hud"] .brand-logo{box-shadow:0 0 0 1px rgba(0,240,255,.22),0 18px 34px rgba(0,0,0,.28),0 0 22px rgba(0,240,255,.12)}
+body[data-theme="luxe"] .brand-logo{box-shadow:0 0 0 1px rgba(212,175,55,.22),0 20px 36px rgba(0,0,0,.3),0 0 18px rgba(212,175,55,.08)}
 .live-dot::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2.5s ease infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(32,216,112,.5)}50%{box-shadow:0 0 0 5px rgba(32,216,112,0)}}
 .nav{flex:1;overflow-y:auto;padding:8px 0}
@@ -557,6 +561,7 @@ tbody tr:hover{background:color-mix(in srgb,var(--blue) 4%, var(--s2))}
 .filter-chip strong{font-weight:700;color:var(--t1)}
 .ana-kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
 .analytics-major-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.analytics-three-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 .analytics-chart-panel{position:relative}
 .analytics-chart-panel::before{content:'';position:absolute;left:16px;right:16px;top:0;height:1px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--blue) 35%, transparent),transparent);opacity:.45}
 .chart-pad{padding:16px 18px}
@@ -1258,6 +1263,8 @@ tbody td{font-size:11.5px}
 @media (max-width: 900px) { .chart-library-grid { grid-template-columns: 1fr !important; } }
 .analytics-major-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 @media (max-width: 900px) { .analytics-major-grid { grid-template-columns: 1fr !important; } }
+.analytics-three-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:12px; }
+@media (max-width: 1100px) { .analytics-three-grid { grid-template-columns: 1fr !important; } }
 .chart-pad { padding: 10px 14px 14px; }
 .seg-fill { transition: width .65s cubic-bezier(.16,1,.3,1) !important; }
 
@@ -3514,10 +3521,16 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
         </div>
         <div id="ana-aging" class="aging-panel" style="padding:14px 18px"></div>
       </div>
-      <!-- Row 7: Heatmaps -->
-      <div class="analytics-major-grid">
-        <div class="panel analytics-chart-panel"><div class="ph"><h2>Branch &times; Tech Stack</h2></div><div class="hm-wrap chart-pad" id="hm-branch-tech"></div></div>
-        <div class="panel analytics-chart-panel"><div class="ph"><h2>Team Lead &times; Visa</h2></div><div class="hm-wrap chart-pad" id="hm-tl-visa"></div></div>
+      <!-- Row 7: Branch x Tech -->
+      <div class="panel analytics-chart-panel">
+        <div class="ph"><h2>Branch &times; Tech Stack</h2><span class="ph-note">Top technology mix across Gurgaon, Lucknow, and Ahmedabad</span></div>
+        <div class="hm-wrap chart-pad" id="hm-branch-tech"></div>
+      </div>
+      <!-- Row 8: Team Lead x Visa by branch -->
+      <div class="analytics-three-grid">
+        <div class="panel analytics-chart-panel"><div class="ph"><h2>GGR &times; Team Lead Visa</h2><span class="ph-note">Gurgaon team leads by visa mix</span></div><div class="hm-wrap chart-pad" id="hm-tl-visa-ggr"></div></div>
+        <div class="panel analytics-chart-panel"><div class="ph"><h2>LKN &times; Team Lead Visa</h2><span class="ph-note">Lucknow team leads by visa mix</span></div><div class="hm-wrap chart-pad" id="hm-tl-visa-lkn"></div></div>
+        <div class="panel analytics-chart-panel"><div class="ph"><h2>AMD &times; Team Lead Visa</h2><span class="ph-note">Ahmedabad team leads by visa mix</span></div><div class="hm-wrap chart-pad" id="hm-tl-visa-amd"></div></div>
       </div>
       </div><!-- /v13-analytics-deep -->
       </div>
@@ -6658,45 +6671,39 @@ function renderAnalytics(){
   }
 
   // â”€â”€ Heatmaps â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  const brtk={},tlvs={};
+  const brtk={},tlvsByBranch={GGR:{},LKN:{},AMD:{}};
   const branchOrder=['Gurgaon','Lucknow','Ahmedabad'];
   d.forEach(x=>{
     const t=cleanTech(x.tech),v=cleanVisa(x.visa);
     if(x.src&&t&&t!=='Other'){const b=brName(x.src);if(!brtk[b])brtk[b]={};brtk[b][t]=(brtk[b][t]||0)+1;}
     if(x.tl&&v&&v!=='Unknown'){
-      const tlKey=`${x.src||'GGR'} • ${x.tl}`;
-      if(!tlvs[tlKey])tlvs[tlKey]={};
-      tlvs[tlKey][v]=(tlvs[tlKey][v]||0)+1;
+      const srcKey=x.src||'GGR';
+      if(!tlvsByBranch[srcKey]) tlvsByBranch[srcKey]={};
+      if(!tlvsByBranch[srcKey][x.tl]) tlvsByBranch[srcKey][x.tl]={};
+      tlvsByBranch[srcKey][x.tl][v]=(tlvsByBranch[srcKey][x.tl][v]||0)+1;
     }
   });
   const branchRows=branchOrder.filter(b=>brtk[b]);
   const topTech=Object.entries(techMap).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k])=>k);
   const topVisa=['OPT','STEM OPT','H1B','GC','USC','H4-EAD','CPT'];
-  const tlRows=Object.keys(tlvs).sort((a,b)=>{
-    const [aBranch,aName]=a.split(' • ');
-    const [bBranch,bName]=b.split(' • ');
-    const branchDiff=branchOrder.indexOf(brName(aBranch)||aBranch)-branchOrder.indexOf(brName(bBranch)||bBranch);
-    if(branchDiff!==0) return branchDiff;
-    const totalA=topVisa.reduce((s,c)=>s+(tlvs[a]?.[c]||0),0);
-    const totalB=topVisa.reduce((s,c)=>s+(tlvs[b]?.[c]||0),0);
-    if(totalB!==totalA) return totalB-totalA;
-    return aName.localeCompare(bName);
-  });
   document.getElementById('hm-branch-tech').innerHTML=makeHM(branchRows,topTech,brtk,'Branch','Tech Stack');
-  document.getElementById('hm-tl-visa').innerHTML=makeHM(tlRows,topVisa,tlvs,'Team Lead','Visa');
+  [['GGR','hm-tl-visa-ggr'],['LKN','hm-tl-visa-lkn'],['AMD','hm-tl-visa-amd']].forEach(([src,id])=>{
+    const branchTlMap=tlvsByBranch[src]||{};
+    const tlRows=Object.keys(branchTlMap).sort((a,b)=>{
+      const totalA=topVisa.reduce((s,c)=>s+(branchTlMap[a]?.[c]||0),0);
+      const totalB=topVisa.reduce((s,c)=>s+(branchTlMap[b]?.[c]||0),0);
+      if(totalB!==totalA) return totalB-totalA;
+      return a.localeCompare(b);
+    });
+    const el=document.getElementById(id);
+    if(el) el.innerHTML=makeHM(tlRows,topVisa,branchTlMap,'Team Lead','Visa');
+  });
 
   const recBars=[...new Set(d.filter(x=>x.rec&&x.rec.trim()).map(x=>x.rec))].map((r,i)=>({
     label:r,
     value:d.filter(x=>x.rec===r&&x.st!=='PO'&&!x.backout).length,
     color:TECH_COLORS[i%TECH_COLORS.length]
   })).sort((a,b)=>b.value-a.value);
-  renderAdvancedAnalyticsCharts(d,total,{
-    techData,
-    visaData,
-    branchColors:BRANCH_COLORS,
-    techColors:TECH_COLORS,
-    recBars,
-  });
 }
 
 // â”€â”€ resetAF extended â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -8721,63 +8728,14 @@ function renderDonutChart(data) {
 }
 
 // â”€â”€ MASTER: render all advanced charts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-window.renderAdvancedCharts = function(data) {
-  // Use double rAF to ensure DOM layout is complete after display:none->block
-  requestAnimationFrame(function() {
-    requestAnimationFrame(function() {
-      _doRenderAdvancedCharts(data);
-    });
-  });
-};
-window._doRenderAdvancedCharts = function(data) {
-  data = data || allData();
-  // Apply current analytics filters
-  const br=document.getElementById('af-branch')?.value||'';
-  const tl=document.getElementById('af-tl')?.value||'';
-  const rc=document.getElementById('af-rec')?.value||'';
-  const st=document.getElementById('af-st')?.value||'';
-  const vs=document.getElementById('af-visa')?.value||'';
-  const tc=document.getElementById('af-tech')?.value||'';
-  const ag=parseInt(document.getElementById('af-age')?.value)||0;
-  let d=allData();
-  if(br)d=d.filter(x=>x.src===br);
-  if(tl)d=d.filter(x=>x.tl===tl);
-  if(rc)d=d.filter(x=>x.rec===rc);
-  if(st)d=d.filter(x=>(x.backout?'Backout':x.st)===st);
-  if(vs)d=d.filter(x=>x.visa===vs);
-  if(tc)d=d.filter(x=>x.tech===tc);
-  if(ag)d=d.filter(x=>x.days>=ag&&x.days<9999);
-
-  try { renderLineChart(d); } catch(e) { console.warn('LineChart',e); }
-  try { renderAreaChart(d); } catch(e) { console.warn('AreaChart',e); }
-  try { renderStackedBar(d); } catch(e) { console.warn('StackedBar',e); }
-  try { renderGroupedColumn(d); } catch(e) { console.warn('GroupedCol',e); }
-  try { renderRadarChart(d); } catch(e) { console.warn('Radar',e); }
-  try { renderBarGraph(d); } catch(e) { console.warn('BarGraph',e); }
-  try { renderHeatmapChart(d); } catch(e) { console.warn('Heatmap',e); }
-  try { renderFunnelChart(d); } catch(e) { console.warn('Funnel',e); }
-  try { renderDualAxis(d); } catch(e) { console.warn('DualAxis',e); }
-  try { renderOthersChart(d); } catch(e) { console.warn('Treemap',e); }
-  try { renderSunburstChart(d); } catch(e) { console.warn('Sunburst',e); }
-  try { renderSankeyChart(d); } catch(e) { console.warn('Sankey',e); }
-  try { renderBubbleChart(d); } catch(e) { console.warn('Bubble',e); }
-  try { renderScatterChart(d); } catch(e) { console.warn('Scatter',e); }
-  try { renderWaterfallChart(d); } catch(e) { console.warn('Waterfall',e); }
-  try { renderDonutChart(d); } catch(e) { console.warn('Donut',e); }
-};
+window.renderAdvancedCharts = function(){};
+window._doRenderAdvancedCharts = function(){};
 
 // â”€â”€ Patch renderAnalytics to always call renderAdvancedCharts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 (function(){
   const _orig = window.renderAnalytics;
   window.renderAnalytics = function(){
     _orig && _orig();
-    // Render advanced charts with longer delay to ensure DOM is visible
-    setTimeout(()=>{ 
-      try { window.renderAdvancedCharts && renderAdvancedCharts(); } catch(e) { console.warn('adv charts', e); }
-    }, 80);
-    setTimeout(()=>{ 
-      try { window.renderAdvancedCharts && renderAdvancedCharts(); } catch(e) {}
-    }, 400);
   };
 })();
 
@@ -8791,13 +8749,6 @@ window._doRenderAdvancedCharts = function(data) {
       mutations.forEach(function(m) {
         if(m.type === 'attributes' && m.attributeName === 'class') {
           if(anaView.classList.contains('on')) {
-            // View just became visible  -  render charts
-            setTimeout(function() {
-              try { window.renderAdvancedCharts && renderAdvancedCharts(); } catch(e) {}
-            }, 50);
-            setTimeout(function() {
-              try { window.renderAdvancedCharts && renderAdvancedCharts(); } catch(e) {}
-            }, 300);
           }
         }
       });
