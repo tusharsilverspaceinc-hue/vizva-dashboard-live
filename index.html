@@ -11476,7 +11476,8 @@ renderVisaUrgency = window.renderVisaUrgency;
   let refreshTimer = null;
 
   function activeView() {
-    return (window.VIEWS || []).find(v => document.getElementById('v-' + v)?.classList.contains('on')) || '';
+    const on = document.querySelector('.view.on[id^="v-"]');
+    return on ? on.id.replace(/^v-/, '') : (window._vizvaCurrentView || '');
   }
 
   function scheduleFrame(key, fn, requiredView) {
@@ -12425,7 +12426,8 @@ body[data-theme="hud"] .bcard{
     try { return typeof allData === 'function' ? allData() : []; } catch(_) { return []; }
   }
   function activeView(){
-    return (window.VIEWS || []).find(v => document.getElementById('v-' + v)?.classList.contains('on')) || '';
+    const on = document.querySelector('.view.on[id^="v-"]');
+    return on ? on.id.replace(/^v-/, '') : (window._vizvaCurrentView || '');
   }
   function pct(n,d){ return d ? Math.round((n / d) * 100) : 0; }
   function stat(label,value,note,color){
@@ -12448,7 +12450,8 @@ body[data-theme="hud"] .bcard{
       strip = document.createElement('div');
       strip.id = 'analytics-ux-strip';
       const anchor = document.querySelector('#v-analytics .analytics-filters-panel') || shell.firstElementChild;
-      shell.insertBefore(strip, anchor ? anchor.nextSibling : shell.firstChild);
+      if(anchor && anchor.parentNode === shell) shell.insertBefore(strip, anchor.nextSibling);
+      else shell.insertBefore(strip, shell.firstChild);
     }
     const rows = safeData();
     const s = summarize(rows);
@@ -12646,9 +12649,8 @@ body[data-theme="hud"] .bcard{
   window.syncAllSheets = async function(){
     try{
       window.toast && window.toast('Syncing all branch sheets...', 'ok');
-      const data = await apiJson(API.sheets + '?force=1');
-      const rows = data.rows || [];
-      ['GGR','LKN','AMD'].forEach(branch => setBranchRows(branch, rows.filter(r => (r.src || 'GGR') === branch), data.lastSync));
+      const results = await Promise.all(['GGR','LKN','AMD'].map(branch => apiJson(API.sheets + '?branch=' + branch + '&force=1')));
+      results.forEach(data => setBranchRows(data.branch, data.rows || [], data.lastSync));
       window.refreshAll && window.refreshAll();
       window.renderSources && window.renderSources();
       window.toast && window.toast('All sheets synced through backend', 'ok');
