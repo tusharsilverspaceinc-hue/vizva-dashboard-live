@@ -12163,6 +12163,438 @@ body[data-theme="hud"] .bcard{
   }, { passive:true });
 })();
 </script>
+<style id="analytics-profiles-ux-refresh">
+#v-analytics .analytics-shell{gap:18px!important;max-width:100%}
+#v-analytics .v13-exec,
+#v-analytics .analytics-filters-panel,
+#v-analytics .analytics-chart-panel,
+#v-profiles>.panel{
+  border:1px solid color-mix(in srgb,var(--bd2) 78%, var(--blue) 22%)!important;
+  box-shadow:0 12px 30px rgba(10,37,64,.08)!important;
+}
+#v-analytics .analytics-filters-panel{
+  position:sticky;
+  top:0;
+  z-index:11;
+  overflow:visible!important;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--s2) 94%, white 6%),color-mix(in srgb,var(--blue) 7%, var(--s2)))!important;
+}
+#v-analytics .analytics-filters-panel .fbar{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(148px,1fr))!important;
+  align-items:end!important;
+  gap:10px!important;
+}
+#v-analytics .analytics-filters-panel .flbl{
+  display:block!important;
+  margin:0 0 -4px!important;
+  font-size:9px!important;
+  letter-spacing:.12em!important;
+}
+#v-analytics .analytics-filters-panel .fsel,
+#v-analytics .analytics-filters-panel input{
+  width:100%!important;
+  min-height:38px!important;
+}
+#v-analytics .analytics-major-grid,
+#v-analytics .analytics-two-grid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:16px!important;
+}
+#v-analytics .analytics-three-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:16px!important;
+}
+#v-analytics .analytics-chart-panel{
+  min-width:0!important;
+  min-height:320px!important;
+  overflow:hidden!important;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--s2) 96%, white 4%),var(--s2))!important;
+}
+#v-analytics .analytics-chart-panel .ph{
+  gap:8px!important;
+  min-height:58px!important;
+}
+#v-analytics .analytics-chart-panel .chart-pad,
+#v-analytics .analytics-chart-panel .hm-wrap{
+  max-width:100%!important;
+  overflow:auto!important;
+}
+#v-analytics .analytics-chart-panel .hm-wrap table{
+  min-width:520px!important;
+}
+#analytics-ux-strip,
+#profiles-ux-summary{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:10px;
+  margin:0 0 14px;
+}
+.ux-stat-card{
+  position:relative;
+  overflow:hidden;
+  border:1px solid var(--bd2);
+  border-radius:16px;
+  padding:13px 14px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--s2) 90%, white 10%),color-mix(in srgb,var(--s3) 88%, white 12%));
+  min-height:88px;
+}
+.ux-stat-card:before{
+  content:'';
+  position:absolute;
+  inset:0 auto 0 0;
+  width:4px;
+  background:var(--ux-accent,var(--blue));
+}
+.ux-stat-card strong{
+  display:block;
+  color:var(--t3);
+  font-size:9px;
+  letter-spacing:.14em;
+  line-height:1.25;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.ux-stat-card span{
+  display:block;
+  color:var(--ux-accent,var(--blue));
+  font-size:26px;
+  font-weight:850;
+  line-height:1;
+}
+.ux-stat-card small{
+  display:block;
+  color:var(--t3);
+  font-size:10px;
+  line-height:1.45;
+  margin-top:7px;
+}
+.ux-quick-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:-2px 0 14px;
+}
+.ux-quick-actions button{
+  min-height:34px;
+  border-radius:999px;
+  border:1px solid var(--bd2);
+  background:color-mix(in srgb,var(--s3) 88%, white 12%);
+  color:var(--t2);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.02em;
+  padding:0 12px;
+  cursor:pointer;
+}
+.ux-quick-actions button:hover,
+.ux-quick-actions button.active{
+  color:var(--blue);
+  border-color:color-mix(in srgb,var(--blue) 45%, var(--bd2));
+  background:color-mix(in srgb,var(--blue) 10%, var(--s3));
+}
+#v-profiles.on{
+  height:calc(100vh - 92px)!important;
+  min-height:620px!important;
+  overflow:hidden!important;
+}
+#v-profiles>.panel{
+  height:100%!important;
+  display:flex!important;
+  flex-direction:column!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+#v-profiles>.panel>.ph{
+  position:sticky!important;
+  top:0!important;
+  z-index:13!important;
+  flex-shrink:0!important;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--s2) 96%, white 4%),color-mix(in srgb,var(--blue) 7%, var(--s2)))!important;
+}
+#v-profiles>.panel>.fbar{
+  position:sticky!important;
+  top:56px!important;
+  z-index:12!important;
+  flex-shrink:0!important;
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(132px,1fr))!important;
+  gap:9px!important;
+  align-items:end!important;
+  padding:12px 14px!important;
+  background:color-mix(in srgb,var(--s2) 94%, white 6%)!important;
+  border-bottom:1px solid var(--bd2)!important;
+}
+#v-profiles>.panel>.fbar .flbl{
+  display:block!important;
+  margin:0 0 -4px!important;
+  font-size:8.5px!important;
+  letter-spacing:.12em!important;
+}
+#v-profiles>.panel>.fbar .fsel,
+#v-profiles>.panel>.fbar .btn{
+  width:100%!important;
+  min-height:36px!important;
+}
+#v-profiles .pf-views-wrap{
+  margin-left:0!important;
+  grid-column:span 2;
+}
+#pf-tbl{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow:auto!important;
+  border-top:1px solid var(--bd2)!important;
+  background:var(--s2)!important;
+}
+#pf-tbl table{
+  min-width:1520px!important;
+  width:max-content!important;
+  border-collapse:separate!important;
+  border-spacing:0!important;
+}
+#pf-tbl thead th{
+  position:sticky!important;
+  top:0!important;
+  z-index:8!important;
+  background:color-mix(in srgb,var(--s3) 92%, white 8%)!important;
+  color:var(--t2)!important;
+  box-shadow:0 1px 0 var(--bd2)!important;
+}
+#pf-tbl tbody tr:nth-child(even) td{
+  background:color-mix(in srgb,var(--s2) 93%, var(--s3) 7%)!important;
+}
+#pf-tbl tbody tr:hover td{
+  background:color-mix(in srgb,var(--blue) 7%, var(--s2))!important;
+}
+#pf-tbl td,
+#pf-tbl th{
+  white-space:normal!important;
+  vertical-align:middle!important;
+}
+#pf-tbl .pf-col-name{min-width:210px!important}
+#pf-tbl .pf-col-rec,
+#pf-tbl .pf-col-tl{min-width:170px!important}
+#pf-tbl .pf-col-role{min-width:190px!important}
+#pf-tbl .pf-col-email{min-width:240px!important;max-width:320px!important;word-break:break-all!important}
+#pf-tbl .pf-col-phone{min-width:150px!important}
+#pf-tbl .pf-col-actions{min-width:180px!important}
+.ux-empty-chart{
+  min-height:180px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:var(--t3);
+  font-size:11px;
+  line-height:1.5;
+  padding:22px;
+  border:1px dashed var(--bd2);
+  border-radius:14px;
+  background:color-mix(in srgb,var(--s3) 72%, transparent);
+}
+@media (max-width:1200px){
+  #analytics-ux-strip,#profiles-ux-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #v-analytics .analytics-three-grid{grid-template-columns:1fr!important}
+}
+@media (max-width:980px){
+  #v-analytics .analytics-major-grid,#v-analytics .analytics-two-grid{grid-template-columns:1fr!important}
+  #v-profiles.on{height:auto!important;overflow:visible!important}
+  #v-profiles>.panel{height:auto!important}
+  #pf-tbl{max-height:70vh!important}
+}
+@media (max-width:720px){
+  #analytics-ux-strip,#profiles-ux-summary{grid-template-columns:1fr}
+  #v-profiles .pf-views-wrap{grid-column:span 1}
+}
+</style>
+<script id="analytics-profiles-ux-refresh">
+(function analyticsProfilesUxRefresh(){
+  const COLORS = {
+    blue:'var(--blue)',
+    green:'var(--green)',
+    orange:'var(--orange)',
+    red:'var(--red)',
+    purple:'var(--purple)',
+    teal:'var(--teal)'
+  };
+  function safeData(){
+    try { return typeof allData === 'function' ? allData() : []; } catch(_) { return []; }
+  }
+  function activeView(){
+    return (window.VIEWS || []).find(v => document.getElementById('v-' + v)?.classList.contains('on')) || '';
+  }
+  function pct(n,d){ return d ? Math.round((n / d) * 100) : 0; }
+  function stat(label,value,note,color){
+    return `<div class="ux-stat-card" style="--ux-accent:${color||COLORS.blue}"><strong>${esc(label)}</strong><span>${esc(String(value))}</span><small>${esc(note||'')}</small></div>`;
+  }
+  function summarize(rows){
+    const total = rows.length;
+    const active = rows.filter(x => x.st === 'Active' && !x.backout).length;
+    const po = rows.filter(x => x.st === 'PO' && !x.backout).length;
+    const aging = rows.filter(x => Number(x.days) >= 170 && Number(x.days) < 9999 && x.st !== 'PO' && !x.backout).length;
+    const unassigned = rows.filter(x => !String(x.rec || '').trim() && x.st !== 'PO' && !x.backout).length;
+    const recruiters = new Set(rows.map(x => String(x.rec || '').trim()).filter(Boolean)).size;
+    return { total, active, po, aging, unassigned, recruiters };
+  }
+  function ensureAnalyticsSummary(){
+    const shell = document.querySelector('#v-analytics .analytics-shell');
+    if(!shell) return;
+    let strip = document.getElementById('analytics-ux-strip');
+    if(!strip){
+      strip = document.createElement('div');
+      strip.id = 'analytics-ux-strip';
+      const anchor = document.querySelector('#v-analytics .analytics-filters-panel') || shell.firstElementChild;
+      shell.insertBefore(strip, anchor ? anchor.nextSibling : shell.firstChild);
+    }
+    const rows = safeData();
+    const s = summarize(rows);
+    strip.innerHTML = [
+      stat('Total Profiles', s.total, 'Live records across visible branch data', COLORS.blue),
+      stat('Active Pipeline', s.active, pct(s.active,s.total) + '% currently marketed', COLORS.green),
+      stat('Aging 170+', s.aging, s.aging ? 'Immediate follow-up required' : 'No critical aging risk', s.aging ? COLORS.red : COLORS.green),
+      stat('PO Rate', pct(s.po,s.total) + '%', s.po + ' placed profiles', COLORS.purple),
+      stat('Recruiters', s.recruiters, s.unassigned + ' profiles unassigned', s.unassigned ? COLORS.orange : COLORS.teal)
+    ].join('');
+  }
+  function ensureProfileSummary(){
+    const panel = document.querySelector('#v-profiles > .panel');
+    const table = document.getElementById('pf-tbl');
+    if(!panel || !table) return;
+    let summary = document.getElementById('profiles-ux-summary');
+    if(!summary){
+      summary = document.createElement('div');
+      summary.id = 'profiles-ux-summary';
+      panel.insertBefore(summary, table);
+    }
+    let quick = document.getElementById('profiles-ux-actions');
+    if(!quick){
+      quick = document.createElement('div');
+      quick.id = 'profiles-ux-actions';
+      quick.className = 'ux-quick-actions';
+      panel.insertBefore(quick, table);
+      quick.innerHTML = [
+        ['all','All'],
+        ['active','Active'],
+        ['aging','Aging 170+'],
+        ['unassigned','Unassigned'],
+        ['po','PO Placed'],
+        ['contacts','Missing Contacts']
+      ].map(([k,l]) => `<button type="button" data-pf-quick="${k}">${l}</button>`).join('');
+      quick.addEventListener('click', e => {
+        const btn = e.target.closest('[data-pf-quick]');
+        if(!btn) return;
+        applyProfileQuick(btn.getAttribute('data-pf-quick'));
+      });
+    }
+    const rows = safeData();
+    const s = summarize(rows);
+    summary.innerHTML = [
+      stat('Total Profiles', s.total, 'All branch records currently loaded', COLORS.blue),
+      stat('Active', s.active, pct(s.active,s.total) + '% of total pipeline', COLORS.green),
+      stat('Critical Aging', s.aging, '170+ days in marketing', s.aging ? COLORS.red : COLORS.green),
+      stat('Unassigned', s.unassigned, 'Need recruiter ownership', s.unassigned ? COLORS.orange : COLORS.teal),
+      stat('Recruiters', s.recruiters, 'Active recruiter names in sheets', COLORS.purple)
+    ].join('');
+  }
+  function applyProfileQuick(kind){
+    const ids = ['pf-br','pf-tl','pf-rec','pf-st','pf-tech','pf-visa','pf-exp','pf-age','pf-imp'];
+    if(kind === 'all'){
+      window.__profilePostFilter = '';
+      if(typeof clearPfFilters === 'function') clearPfFilters();
+      else ids.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    } else {
+      ids.forEach(id => { const el = document.getElementById(id); if(el && !['pf-br','pf-tl','pf-rec'].includes(id)) el.value = ''; });
+      if(kind === 'active') { const el = document.getElementById('pf-st'); if(el) el.value = 'Active'; }
+      if(kind === 'aging') { const el = document.getElementById('pf-age'); if(el) el.value = 'ag'; }
+      if(kind === 'po') { const el = document.getElementById('pf-st'); if(el) el.value = 'PO'; }
+      if(kind === 'unassigned' || kind === 'contacts') {
+        window.__profilePostFilter = kind;
+      } else {
+        window.__profilePostFilter = '';
+      }
+      if(typeof renderProfiles === 'function') renderProfiles();
+    }
+    document.querySelectorAll('[data-pf-quick]').forEach(b => b.classList.toggle('active', b.getAttribute('data-pf-quick') === kind));
+    if(kind === 'unassigned' || kind === 'contacts') setTimeout(() => softFilterProfileRows(kind), 100);
+  }
+  function softFilterProfileRows(kind){
+    const table = document.querySelector('#pf-tbl tbody');
+    if(!table) return;
+    Array.from(table.rows).forEach(row => {
+      const cells = Array.from(row.cells).map(c => c.textContent.trim());
+      const recruiter = cells[1] || '';
+      const email = cells[10] || '';
+      const phone = cells[11] || '';
+      const show = kind === 'unassigned' ? (!recruiter || recruiter === '-' || recruiter === 'Assign later') : (!email || email === '-' || !phone || phone === '-');
+      row.style.display = show ? '' : 'none';
+    });
+    const visible = Array.from(table.rows).filter(r => r.style.display !== 'none').length;
+    const cnt = document.getElementById('pf-cnt');
+    if(cnt) cnt.textContent = visible + ' profiles';
+  }
+  function fixEmptyCharts(){
+    document.querySelectorAll('#v-analytics .analytics-chart-panel').forEach(panel => {
+      const target = panel.querySelector('.chart-pad,.hm-wrap,[id^="ana-"],[id^="hm-"]');
+      if(!target || target.children.length || String(target.textContent || '').trim()) return;
+      target.innerHTML = '<div class="ux-empty-chart">No chart data for this filter yet.<br>Try clearing filters or syncing the branch sheets.</div>';
+    });
+  }
+  function refreshEnhancements(){
+    if(activeView() === 'analytics'){
+      ensureAnalyticsSummary();
+      setTimeout(fixEmptyCharts, 120);
+    }
+    if(activeView() === 'profiles'){
+      ensureProfileSummary();
+      if(window.__profilePostFilter) setTimeout(() => softFilterProfileRows(window.__profilePostFilter), 120);
+    }
+  }
+  const original = {
+    nav: typeof window.nav === 'function' ? window.nav : null,
+    renderAnalytics: typeof window.renderAnalytics === 'function' ? window.renderAnalytics : null,
+    renderProfiles: typeof window.renderProfiles === 'function' ? window.renderProfiles : null,
+    refreshAll: typeof window.refreshAll === 'function' ? window.refreshAll : null
+  };
+  if(original.nav && !window.__uxRefreshNavWrapped){
+    window.__uxRefreshNavWrapped = true;
+    window.nav = function(v){
+      const out = original.nav.apply(this, arguments);
+      setTimeout(refreshEnhancements, 180);
+      return out;
+    };
+  }
+  if(original.renderAnalytics && !window.__uxRefreshAnalyticsWrapped){
+    window.__uxRefreshAnalyticsWrapped = true;
+    window.renderAnalytics = function(){
+      const out = original.renderAnalytics.apply(this, arguments);
+      setTimeout(refreshEnhancements, 180);
+      return out;
+    };
+  }
+  if(original.renderProfiles && !window.__uxRefreshProfilesWrapped){
+    window.__uxRefreshProfilesWrapped = true;
+    window.renderProfiles = function(){
+      const out = original.renderProfiles.apply(this, arguments);
+      setTimeout(refreshEnhancements, 180);
+      return out;
+    };
+  }
+  if(original.refreshAll && !window.__uxRefreshAllWrapped){
+    window.__uxRefreshAllWrapped = true;
+    window.refreshAll = function(){
+      const out = original.refreshAll.apply(this, arguments);
+      setTimeout(refreshEnhancements, 220);
+      return out;
+    };
+  }
+  if(document.readyState !== 'loading') setTimeout(refreshEnhancements, 260);
+  else document.addEventListener('DOMContentLoaded', () => setTimeout(refreshEnhancements, 260), { once:true });
+})();
+</script>
 <script id="fullstack-api-adapter">
 (function fullstackApiAdapter(){
   const API = {
