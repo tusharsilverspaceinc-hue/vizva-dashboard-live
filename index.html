@@ -3469,23 +3469,23 @@ body.auth-locked .app{filter:blur(6px);pointer-events:none;user-select:none}
       <!-- Row 1: Status + Visa (donut-style bars) -->
       <div class="analytics-major-grid">
         <div class="panel analytics-chart-panel" id="ana-status-panel">
-          <div class="ph"><h2>&#128202; Profile Status</h2><span class="ph-note" id="ana-status-n"></span></div>
+          <div class="ph"><h2>Profile Status</h2><span class="ph-note" id="ana-status-n"></span></div>
           <div id="ana-status" class="chart-pad"></div>
         </div>
         <div class="panel analytics-chart-panel" id="ana-visa-panel">
-          <div class="ph"><h2>&#127909; Visa Distribution</h2><span class="ph-note" id="ana-visa-n"></span></div>
+          <div class="ph"><h2>Visa Distribution</h2><span class="ph-note" id="ana-visa-n"></span></div>
           <div id="ana-visa" class="chart-pad"></div>
         </div>
       </div>
       <!-- Row 2: Tech Stack (full width, top 12 cleaned) -->
       <div class="panel analytics-chart-panel">
-        <div class="ph"><h2>&#128187; Technology Stack</h2><span class="ph-note" id="ana-tech-n"></span></div>
+        <div class="ph"><h2>Technology Stack</h2><span class="ph-note" id="ana-tech-n"></span></div>
         <div id="ana-tech" class="chart-pad"></div>
       </div>
       <!-- Row 3: Branch + Experience -->
       <div class="analytics-major-grid">
-        <div class="panel analytics-chart-panel"><div class="ph"><h2>&#127968; Branch Distribution</h2></div><div id="ana-branch" class="chart-pad"></div></div>
-        <div class="panel analytics-chart-panel"><div class="ph"><h2>&#128197; Experience Bands</h2></div><div id="ana-exp" class="chart-pad"></div></div>
+        <div class="panel analytics-chart-panel"><div class="ph"><h2>Branch Distribution</h2></div><div id="ana-branch" class="chart-pad"></div></div>
+        <div class="panel analytics-chart-panel"><div class="ph"><h2>Experience Bands</h2></div><div id="ana-exp" class="chart-pad"></div></div>
       </div>
       <!-- Row 4: TL Performance -->
       <div class="panel analytics-chart-panel">
@@ -6192,30 +6192,32 @@ function renderCleanBarChart(containerId, data, total, options){
   const maxRows=options.maxRows||20;
   const rows=data.slice(0,maxRows);
 
-  const summary=rows.slice(0,3).map(d=>{
+  const summary=rows.slice(0,3).map((d,i)=>{
     const pct=total>0?Math.round(d.value/total*100):0;
-    return `<div class="fikri-mini-card"><div class="fikri-mini-k">${esc(d.label)}</div><div class="fikri-mini-v" style="color:${d.color||'var(--blue)'}">${d.value}</div><div class="fikri-mini-s">${pct}% of current scope</div></div>`;
+    return `<div class="fikri-mini-card" style="--fikri-accent:${d.color||'var(--blue)'}"><div class="fikri-mini-index">${String(i+1).padStart(2,'0')}</div><div class="fikri-mini-k">${esc(d.label)}</div><div class="fikri-mini-v">${d.value}</div><div class="fikri-mini-s">${pct}% of current scope</div></div>`;
   }).join('');
   const legend=rows.slice(0,5).map(d=>`<span class="fikri-chip"><span class="fikri-chip-dot" style="background:${d.color||'var(--blue)'}"></span>${esc(d.label)}</span>`).join('');
+  const axis=[0,25,50,75,100].map(x=>`<span style="left:${x}%">${x}%</span>`).join('');
 
-  el.innerHTML=`<div class="fikri-chart">
+  el.innerHTML=`<div class="fikri-chart fikri-viz-card">
     <div class="fikri-chart-head">
-      <div class="fikri-note">${rows.length} visible series${total?`  |  ${total} profiles in scope`:''}</div>
+      <div><div class="fikri-note">${rows.length} visible series${total?`  |  ${total} profiles in scope`:''}</div><div class="fikri-axis-label">Share of filtered dataset</div></div>
       <div class="fikri-chart-meta">${legend}</div>
     </div>
     ${summary?`<div class="fikri-mini-grid">${summary}</div>`:''}
-    <div class="fikri-bars">${rows.map(d=>{
+    <div class="fikri-axis">${axis}</div>
+    <div class="fikri-bars">${rows.map((d,i)=>{
       const pct=total>0?Math.round(d.value/total*100):0;
       const barW=Math.max(6,Math.round(d.value/maxVal*100));
       const col=d.color||'var(--blue)';
-      return`<div class="fikri-row">
+      return`<div class="fikri-row" style="--fikri-accent:${col};--fikri-delay:${i*35}ms">
         <span class="fikri-label" title="${esc(d.label)}">${esc(d.label)}</span>
         <div class="fikri-track">
-          <div class="fikri-fill" style="width:${barW}%;background:${col}">
+          <div class="fikri-fill" style="width:${barW}%">
             ${barW>22?`<span class="fikri-value-in">${d.value}</span>`:''}
           </div>
         </div>
-        <span class="fikri-value-out" style="color:${col}">${barW>22?'':d.value}</span>
+        <span class="fikri-value-out">${barW>22?'':d.value}</span>
         ${showPct?`<span class="fikri-pct">${pct}%</span>`:''}
       </div>`;
     }).join('')}</div>
@@ -6547,7 +6549,7 @@ function renderAnalytics(){
       <td>${stBadge(x.st,x.backout)}</td><td>${brBadge(x.src)}</td>
       <td style="font-family:'JetBrains Mono',monospace;font-size:9px">${x.days>0&&x.days<9999?x.days+'d':' - '}</td>
     </tr>`).join('');
-    candListEl.innerHTML=`<div class="panel" style="margin-bottom:12px"><div class="ph"><h2>&#128270; Search: "${esc(cq)}" &mdash; ${total} result${total===1?'':'s'}</h2><button class="btn btn-ghost btn-sm" onclick="document.getElementById('af-cand').value='';renderAnalytics()">&#10006; Clear</button></div><div class="tw mh4"><table><thead><tr><th>Candidate</th><th>Recruiter</th><th>TL</th><th>Role</th><th>Visa</th><th>Status</th><th>Branch</th><th>Days</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+    candListEl.innerHTML=`<div class="panel" style="margin-bottom:12px"><div class="ph"><h2>Search: "${esc(cq)}" - ${total} result${total===1?'':'s'}</h2><button class="btn btn-ghost btn-sm" onclick="document.getElementById('af-cand').value='';renderAnalytics()">Clear</button></div><div class="tw mh4"><table><thead><tr><th>Candidate</th><th>Recruiter</th><th>TL</th><th>Role</th><th>Visa</th><th>Status</th><th>Branch</th><th>Days</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
     return; // Show only candidate list when searching by name
   } else if(candListEl){
     candListEl.innerHTML='';
@@ -12410,6 +12412,250 @@ body[data-theme="hud"] .bcard{
 @media (max-width:720px){
   #analytics-ux-strip,#profiles-ux-summary{grid-template-columns:1fr}
   #v-profiles .pf-views-wrap{grid-column:span 1}
+}
+</style>
+<style id="fikri-analytics-library-theme">
+#v-analytics{
+  --fikri-navy:#111827;
+  --fikri-navy-2:#172033;
+  --fikri-card:#ffffff;
+  --fikri-paper:#f7f9fc;
+  --fikri-line:#d9e2ef;
+  --fikri-muted:#718096;
+  --fikri-title:#102033;
+  --fikri-blue:#4f7cff;
+  --fikri-green:#14c884;
+  --fikri-amber:#ffb020;
+  --fikri-red:#ff5b6b;
+  --fikri-purple:#9a66ff;
+}
+#v-analytics .analytics-shell{
+  background:
+    radial-gradient(circle at 8% 0%, rgba(79,124,255,.10), transparent 28%),
+    linear-gradient(180deg,#f5f8fc 0%,#eef3f9 100%);
+  padding:16px;
+  border-radius:22px;
+}
+#v-analytics .v13-exec,
+#v-analytics .analytics-filters-panel{
+  border-radius:22px!important;
+  border:1px solid var(--fikri-line)!important;
+  background:var(--fikri-card)!important;
+  box-shadow:0 18px 48px rgba(15,23,42,.08)!important;
+}
+#v-analytics .analytics-filters-panel{
+  top:10px;
+}
+#v-analytics .analytics-chart-panel{
+  position:relative;
+  min-height:360px!important;
+  border-radius:22px!important;
+  border:1px solid var(--fikri-line)!important;
+  background:var(--fikri-card)!important;
+  box-shadow:0 18px 45px rgba(15,23,42,.08)!important;
+}
+#v-analytics .analytics-chart-panel:before{
+  content:'';
+  position:absolute;
+  inset:0 0 auto 0;
+  height:5px;
+  border-radius:22px 22px 0 0;
+  background:linear-gradient(90deg,var(--fikri-blue),var(--fikri-green),var(--fikri-amber),var(--fikri-purple));
+}
+#v-analytics .analytics-chart-panel .ph{
+  padding:18px 20px 12px!important;
+  border-bottom:1px solid var(--fikri-line)!important;
+}
+#v-analytics .analytics-chart-panel .ph h2{
+  color:var(--fikri-title)!important;
+  font-size:15px!important;
+  font-weight:850!important;
+  letter-spacing:-.02em!important;
+}
+#v-analytics .analytics-chart-panel .ph-note{
+  color:var(--fikri-muted)!important;
+  font-size:10px!important;
+  font-weight:750!important;
+}
+#v-analytics .chart-pad,
+#v-analytics .hm-wrap{
+  padding:18px 20px!important;
+}
+#v-analytics .fikri-viz-card{
+  gap:16px;
+}
+#v-analytics .fikri-chart-head{
+  align-items:flex-start;
+}
+#v-analytics .fikri-note{
+  color:var(--fikri-title)!important;
+  font-size:11px!important;
+  font-weight:800!important;
+}
+#v-analytics .fikri-axis-label{
+  margin-top:4px;
+  color:var(--fikri-muted);
+  font-size:10px;
+}
+#v-analytics .fikri-chart-meta{
+  justify-content:flex-end;
+  max-width:56%;
+}
+#v-analytics .fikri-chip{
+  background:#f3f6fb!important;
+  border:1px solid var(--fikri-line)!important;
+  color:#344054!important;
+}
+#v-analytics .fikri-mini-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:12px!important;
+}
+#v-analytics .fikri-mini-card{
+  position:relative;
+  overflow:hidden;
+  min-height:112px;
+  padding:15px 14px!important;
+  border-radius:18px!important;
+  border:1px solid var(--fikri-line)!important;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.95),rgba(247,250,255,.94))!important;
+  box-shadow:0 12px 26px rgba(15,23,42,.07);
+}
+#v-analytics .fikri-mini-card:before{
+  content:'';
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:4px;
+  background:var(--fikri-accent,var(--fikri-blue));
+}
+#v-analytics .fikri-mini-index{
+  position:absolute;
+  right:12px;
+  top:10px;
+  font-family:var(--mono);
+  font-size:10px;
+  color:#c2ccda;
+  font-weight:900;
+}
+#v-analytics .fikri-mini-k{
+  color:var(--fikri-muted)!important;
+  font-size:10px!important;
+}
+#v-analytics .fikri-mini-v{
+  color:var(--fikri-accent,var(--fikri-blue))!important;
+  font-size:31px!important;
+  font-weight:900!important;
+  letter-spacing:-.04em;
+}
+#v-analytics .fikri-mini-s{
+  color:#526173!important;
+}
+#v-analytics .fikri-axis{
+  position:relative;
+  height:18px;
+  margin:0 84px 0 154px;
+  border-bottom:1px dashed #d5deea;
+}
+#v-analytics .fikri-axis span{
+  position:absolute;
+  top:0;
+  transform:translateX(-50%);
+  color:#9aa8ba;
+  font-size:9px;
+  font-family:var(--mono);
+}
+#v-analytics .fikri-bars{
+  gap:11px!important;
+}
+#v-analytics .fikri-row{
+  grid-template-columns:minmax(128px,170px) minmax(220px,1fr) 42px 42px!important;
+  gap:12px!important;
+  margin:0!important;
+  padding:4px 0;
+}
+#v-analytics .fikri-label{
+  color:#263445!important;
+  font-size:11px!important;
+  font-weight:800!important;
+}
+#v-analytics .fikri-track{
+  height:34px!important;
+  border-radius:999px!important;
+  border:1px solid #dce5f0!important;
+  background:
+    repeating-linear-gradient(90deg,transparent 0,transparent calc(25% - 1px),rgba(15,23,42,.055) calc(25% - 1px),rgba(15,23,42,.055) 25%),
+    linear-gradient(180deg,#f7f9fd,#eef3f9)!important;
+  box-shadow:inset 0 1px 2px rgba(15,23,42,.06);
+}
+#v-analytics .fikri-fill{
+  border-radius:999px!important;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--fikri-accent) 88%, white 12%),var(--fikri-accent))!important;
+  box-shadow:0 10px 20px color-mix(in srgb,var(--fikri-accent) 24%, transparent)!important;
+  animation:fikriBarIn .7s cubic-bezier(.2,.8,.2,1) both;
+  animation-delay:var(--fikri-delay,0ms);
+}
+#v-analytics .fikri-fill:after{
+  background:linear-gradient(90deg,rgba(255,255,255,.25),rgba(255,255,255,0) 58%)!important;
+}
+#v-analytics .fikri-value-in{
+  color:#fff!important;
+  font-size:11px!important;
+}
+#v-analytics .fikri-value-out{
+  color:var(--fikri-accent,var(--fikri-blue))!important;
+  font-size:12px!important;
+}
+#v-analytics .fikri-pct{
+  color:#7c8b9f!important;
+  font-family:var(--mono);
+  font-size:10px!important;
+}
+#v-analytics .hm-table{
+  width:max-content;
+  min-width:100%;
+  border-collapse:separate!important;
+  border-spacing:0 7px!important;
+  font-size:11px!important;
+}
+#v-analytics .hm-table th{
+  background:transparent!important;
+  color:#66768b!important;
+  border:none!important;
+  font-weight:850!important;
+}
+#v-analytics .hm-table td,
+#v-analytics .hm-table .hm-rh,
+#v-analytics .hm-table .hm-total{
+  border:1px solid #e0e7f2!important;
+  background:#f7f9fc!important;
+  color:#263445!important;
+  border-radius:10px!important;
+  font-weight:800!important;
+}
+#v-analytics .hm-table td:not(:empty){
+  box-shadow:inset 0 0 0 999px rgba(255,255,255,.42);
+}
+#v-analytics .hm-table .hm-rh{
+  text-align:left;
+  min-width:160px;
+}
+#v-analytics #ana-kpi-strip .kpi{
+  border-radius:18px!important;
+  background:var(--fikri-card)!important;
+  border:1px solid var(--fikri-line)!important;
+  box-shadow:0 12px 28px rgba(15,23,42,.07)!important;
+}
+@keyframes fikriBarIn{
+  from{clip-path:inset(0 100% 0 0)}
+  to{clip-path:inset(0 0 0 0)}
+}
+@media (max-width:980px){
+  #v-analytics .fikri-chart-meta{max-width:100%;justify-content:flex-start}
+  #v-analytics .fikri-mini-grid{grid-template-columns:1fr!important}
+  #v-analytics .fikri-axis{display:none}
+  #v-analytics .fikri-row{grid-template-columns:1fr!important}
 }
 </style>
 <script id="analytics-profiles-ux-refresh">
