@@ -1,7 +1,8 @@
-const { fetchAllSheetRows, fetchSheetRows, normalizeBranch, sendJson } = require('./_lib');
+const { fetchAllSheetRows, fetchSheetRows, normalizeBranch, sendJson, sendOptions } = require('./_lib');
 
 module.exports = async function handler(req, res) {
   try {
+    if (req.method === 'OPTIONS') return sendOptions(res);
     if (req.method !== 'GET') return sendJson(res, 405, { ok: false, error: 'Method not allowed' });
     const branch = req.query.branch ? normalizeBranch(req.query.branch) : '';
     const force = String(req.query.force || '') === '1';

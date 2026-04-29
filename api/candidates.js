@@ -5,7 +5,8 @@ const {
   findDuplicate,
   normalizeBranch,
   postJsonText,
-  sendJson
+  sendJson,
+  sendOptions
 } = require('./_lib');
 
 function readBody(req) {
@@ -21,6 +22,7 @@ function readBody(req) {
 
 module.exports = async function handler(req, res) {
   try {
+    if (req.method === 'OPTIONS') return sendOptions(res);
     if (req.method !== 'POST') return sendJson(res, 405, { ok: false, error: 'Method not allowed' });
     const body = await readBody(req);
     const profile = body.profile || body;

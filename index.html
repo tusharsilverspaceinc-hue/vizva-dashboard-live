@@ -12597,10 +12597,12 @@ body[data-theme="hud"] .bcard{
 </script>
 <script id="fullstack-api-adapter">
 (function fullstackApiAdapter(){
+  const localHost = ['localhost','127.0.0.1',''].includes(location.hostname) || location.protocol === 'file:';
+  const API_BASE = localHost ? 'https://vizva-dashboard-live.vercel.app' : '';
   const API = {
-    sheets: '/api/sheets',
-    users: '/api/users',
-    candidates: '/api/candidates'
+    sheets: API_BASE + '/api/sheets',
+    users: API_BASE + '/api/users',
+    candidates: API_BASE + '/api/candidates'
   };
   async function apiJson(url, options){
     const res = await fetch(url, Object.assign({ cache:'no-store' }, options || {}));
@@ -12681,11 +12683,48 @@ body[data-theme="hud"] .bcard{
     if(data.duplicate) throw new Error('Duplicate candidate found');
     return {ok:true,submitted:true,branch:data.branch,backend:true};
   };
-  setTimeout(() => {
-    if(window._vizvaAuthUser && typeof window.syncAllSheets === 'function') {
-      window.syncAllSheets();
+  async function bootstrapDashboardData(reason){
+    if(!window._vizvaAuthUser || window.__vizvaBootstrapSyncing) return;
+    window.__vizvaBootstrapSyncing = true;
+    try{
+      await window.syncAllSheets();
+      if(typeof window.populateAnaFilters === 'function') window.populateAnaFilters();
+      const current = window._vizvaCurrentView || ((window.VIEWS || []).find(v => document.getElementById('v-' + v)?.classList.contains('on')) || 'overview');
+      if(current === 'analytics' && typeof window.renderAnalytics === 'function') window.renderAnalytics();
+      else if(current === 'profiles' && typeof window.renderProfiles === 'function') window.renderProfiles();
+      else if(typeof window.refreshAll === 'function') window.refreshAll();
+    }catch(err){
+      console.warn('[fullstack] bootstrap sync failed', reason, err);
+      window.toast && window.toast('Live data sync failed. Please use Data Sources > Sync all.', 'amber');
+    }finally{
+      window.__vizvaBootstrapSyncing = false;
     }
-  }, 900);
+  }
+  window.bootstrapDashboardData = bootstrapDashboardData;
+  const originalSubmitAuthLogin = typeof window.submitAuthLogin === 'function' ? window.submitAuthLogin : null;
+  if(originalSubmitAuthLogin && !window.__fullstackLoginSyncWrapped){
+    window.__fullstackLoginSyncWrapped = true;
+    window.submitAuthLogin = async function(){
+      const ok = await originalSubmitAuthLogin.apply(this, arguments);
+      if(ok) setTimeout(() => bootstrapDashboardData('login'), 80);
+      return ok;
+    };
+  }
+  const originalNav = typeof window.nav === 'function' ? window.nav : null;
+  if(originalNav && !window.__fullstackNavDataGuardWrapped){
+    window.__fullstackNavDataGuardWrapped = true;
+    window.nav = function(v){
+      const out = originalNav.apply(this, arguments);
+      if(window._vizvaAuthUser && (v === 'analytics' || v === 'profiles') && !safeLoadedRows()){
+        setTimeout(() => bootstrapDashboardData('empty-' + v), 80);
+      }
+      return out;
+    };
+  }
+  function safeLoadedRows(){
+    try { return typeof window.allData === 'function' ? window.allData().length : 0; } catch(_) { return 0; }
+  }
+  setTimeout(() => bootstrapDashboardData('startup'), 900);
 })();
 </script>
 </body>

@@ -1,4 +1,4 @@
-const { ACCESS_USERS_ENDPOINT, postJsonText, sendJson } = require('./_lib');
+const { ACCESS_USERS_ENDPOINT, postJsonText, sendJson, sendOptions } = require('./_lib');
 
 function readBody(req) {
   return new Promise((resolve, reject) => {
@@ -28,6 +28,7 @@ function normalizeUser(row) {
 
 module.exports = async function handler(req, res) {
   try {
+    if (req.method === 'OPTIONS') return sendOptions(res);
     if (req.method === 'GET') {
       const response = await fetch(ACCESS_USERS_ENDPOINT, { cache: 'no-store' });
       if (!response.ok) throw new Error(`Users fetch failed: ${response.status}`);
