@@ -12658,6 +12658,326 @@ body[data-theme="hud"] .bcard{
   #v-analytics .fikri-row{grid-template-columns:1fr!important}
 }
 </style>
+<style id="fikri-global-icons-and-profiles">
+.fi-icon{
+  --fi-color:var(--blue);
+  width:18px;
+  height:18px;
+  border-radius:8px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  flex:0 0 auto;
+  background:color-mix(in srgb,var(--fi-color) 13%, transparent);
+  border:1px solid color-mix(in srgb,var(--fi-color) 35%, transparent);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
+  vertical-align:-4px;
+}
+.fi-icon:before,.fi-icon:after{content:'';position:absolute;display:block}
+.fi-chart:before{left:5px;bottom:4px;width:2px;height:7px;background:var(--fi-color);box-shadow:4px -3px 0 var(--fi-color),8px -6px 0 var(--fi-color);border-radius:2px}
+.fi-profile:before{width:7px;height:7px;border-radius:50%;top:4px;background:var(--fi-color)}
+.fi-profile:after{width:11px;height:5px;border-radius:8px 8px 4px 4px;bottom:3px;background:var(--fi-color)}
+.fi-branch:before{width:4px;height:4px;border-radius:50%;background:var(--fi-color);box-shadow:-5px 6px 0 var(--fi-color),5px 6px 0 var(--fi-color)}
+.fi-branch:after{width:12px;height:8px;border-left:2px solid var(--fi-color);border-right:2px solid var(--fi-color);border-top:2px solid var(--fi-color);top:6px;border-radius:8px 8px 0 0}
+.fi-visa:before{width:11px;height:8px;border:2px solid var(--fi-color);border-radius:2px}
+.fi-visa:after{width:7px;height:1.5px;background:var(--fi-color);box-shadow:0 3px 0 var(--fi-color);left:5px;top:7px}
+.fi-aging:before{width:10px;height:10px;border:2px solid var(--fi-color);border-radius:50%}
+.fi-aging:after{width:5px;height:5px;border-left:2px solid var(--fi-color);border-bottom:2px solid var(--fi-color);left:8px;top:5px}
+.fi-po:before{width:11px;height:7px;border-left:2px solid var(--fi-color);border-bottom:2px solid var(--fi-color);transform:rotate(-45deg);top:4px}
+.fi-team:before{width:5px;height:5px;border-radius:50%;background:var(--fi-color);top:4px;box-shadow:-5px 4px 0 color-mix(in srgb,var(--fi-color) 65%, transparent),5px 4px 0 color-mix(in srgb,var(--fi-color) 65%, transparent)}
+.fi-team:after{width:14px;height:5px;border-radius:8px;background:var(--fi-color);bottom:3px}
+.fi-alert:before{width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:12px solid var(--fi-color);top:3px}
+.fi-alert:after{width:2px;height:5px;background:#fff;top:8px;box-shadow:0 5px 0 #fff}
+.fi-sync:before{width:11px;height:11px;border:2px solid var(--fi-color);border-left-color:transparent;border-radius:50%}
+.fi-sync:after{right:3px;top:3px;width:0;height:0;border-left:5px solid var(--fi-color);border-top:3px solid transparent;border-bottom:3px solid transparent}
+.fi-search:before{width:8px;height:8px;border:2px solid var(--fi-color);border-radius:50%;left:4px;top:4px}
+.fi-search:after{width:6px;height:2px;background:var(--fi-color);transform:rotate(45deg);right:3px;bottom:4px;border-radius:2px}
+.fi-email:before{width:12px;height:9px;border:2px solid var(--fi-color);border-radius:2px}
+.fi-email:after{width:8px;height:8px;border-left:2px solid var(--fi-color);border-bottom:2px solid var(--fi-color);transform:rotate(-45deg);top:3px}
+.fi-plus:before,.fi-plus:after{width:10px;height:2px;background:var(--fi-color);border-radius:2px}
+.fi-plus:after{transform:rotate(90deg)}
+.fi-insight:before{width:8px;height:8px;border-radius:50%;background:var(--fi-color);top:3px}
+.fi-insight:after{width:8px;height:5px;border-radius:0 0 5px 5px;border:2px solid var(--fi-color);border-top:none;bottom:3px}
+.fi-file:before{width:10px;height:13px;border:2px solid var(--fi-color);border-radius:2px}
+.fi-file:after{right:4px;top:3px;width:4px;height:4px;border-left:2px solid var(--fi-color);border-bottom:2px solid var(--fi-color)}
+.fi-inline{margin-right:7px}
+.ph h2{display:flex;align-items:center;gap:8px}
+.insight-icon{font-size:0!important;margin-bottom:10px!important}
+.insight-icon .fi-icon{width:28px;height:28px;border-radius:12px}
+#v-insights .insight-card{
+  border-radius:18px!important;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--s2) 94%, white 6%),color-mix(in srgb,var(--s3) 88%, white 12%))!important;
+  border:1px solid var(--bd2)!important;
+  box-shadow:0 14px 34px rgba(15,23,42,.07);
+}
+#v-insights .insight-title{font-size:11px!important;text-transform:uppercase;letter-spacing:.08em;color:var(--t3)!important}
+#v-insights .insight-val{font-size:30px!important}
+#v-insights .panel{border-radius:18px}
+#v-insights .fikri-insight-bars{display:flex;flex-direction:column;gap:9px}
+#v-insights .fikri-insight-row{display:grid;grid-template-columns:150px 1fr 56px;gap:10px;align-items:center}
+#v-insights .fikri-insight-label{font-size:10.5px;font-weight:800;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#v-insights .fikri-insight-track{height:16px;border-radius:999px;background:var(--s4);overflow:hidden;border:1px solid var(--bd2)}
+#v-insights .fikri-insight-fill{height:100%;border-radius:999px;background:var(--fi-color,var(--blue));box-shadow:0 8px 16px color-mix(in srgb,var(--fi-color,var(--blue)) 18%, transparent)}
+#v-insights .fikri-insight-value{font-family:var(--mono);font-size:10px;font-weight:900;color:var(--t2);text-align:right}
+#v-profiles .profiles-utility-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 14px;
+  border-bottom:1px solid var(--bd2);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--s2) 96%, white 4%),color-mix(in srgb,var(--blue) 5%, var(--s2)));
+  flex-wrap:wrap;
+}
+#v-profiles .profiles-utility-left,#v-profiles .profiles-utility-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#v-profiles .profile-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border-radius:999px;
+  border:1px solid var(--bd2);
+  background:var(--s3);
+  color:var(--t2);
+  padding:7px 10px;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+}
+#v-profiles .profile-chip:hover,#v-profiles .profile-chip.on{color:var(--blue);border-color:color-mix(in srgb,var(--blue) 45%, var(--bd2));background:color-mix(in srgb,var(--blue) 10%, var(--s3))}
+#v-profiles .profile-density-compact #pf-tbl table.pf-table tbody td{padding:7px 10px!important}
+#v-profiles .pf-name-text{font-weight:850;color:var(--t1)}
+#v-profiles .pf-col-email a,#v-profiles .pf-col-phone a{color:var(--blue);font-weight:750;text-decoration:none}
+#v-profiles .pf-col-actions .btn-xs{min-height:28px!important;padding:0 9px!important}
+#v-profiles #pf-tbl tbody tr{cursor:pointer}
+</style>
+<script id="fikri-global-cleanup-and-insights">
+(function fikriGlobalCleanupAndInsights(){
+  const ICON_MAP = {
+    chart:'chart', analytics:'chart', status:'chart', distribution:'chart', stack:'chart',
+    profile:'profile', profiles:'profile', candidate:'profile', recruiter:'team', team:'team', lead:'team',
+    branch:'branch', visa:'visa', ead:'visa', aging:'aging', risk:'alert', alert:'alert', warning:'alert',
+    po:'po', placement:'po', placed:'po', sync:'sync', source:'sync', data:'file', upload:'file',
+    search:'search', email:'email', add:'plus', create:'plus', insight:'insight', activity:'chart'
+  };
+  const BAD_REPLACEMENTS = [
+    [/ðŸ“Š/g,'Chart'],[/ðŸ“‹/g,'Profiles'],[/ðŸŽ¯/g,'PO'],[/ðŸ”¥/g,'Aging'],[/ðŸ’¡/g,'Insight'],[/ðŸ“§/g,'Email'],
+    [/ðŸ“Ž/g,'Attach'],[/ðŸ“„/g,'File'],[/ðŸ“ˆ/g,'Up'],[/ðŸ“‰/g,'Down'],[/ðŸš«/g,'Blocked'],[/ðŸ”µ/g,'Priority'],
+    [/âœ…/g,'OK'],[/âœ“/g,'OK'],[/âœ—/g,'X'],[/âœ–/g,'X'],[/â†©ï¸/g,'Back'],[/â†’/g,'->'],[/â†/g,'<-'],
+    [/âš ï¸/g,'Warning'],[/âš /g,'Warning'],[/âŒ˜/g,'Ctrl'],[/â¬‡/g,'Down'],[/â€¦/g,'...'],[/â‰¤/g,'<='],
+    [/â€”/g,' - '],[/â€“/g,'-'],[/â€¢/g,'-'],[/Â·/g,' | '],[/â˜…/g,'Best'],[/â¸/g,'Hold'],[/â°/g,'Time'],
+    [/âš¡/g,'Sync'],[/â­/g,'Premium'],[/Ã¢â‚¬"/g,'-'],[/�/g,'']
+  ];
+  function cleanText(value){
+    let out = String(value || '');
+    BAD_REPLACEMENTS.forEach(([re,to]) => { out = out.replace(re,to); });
+    out = out.replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu,'');
+    out = out.replace(/[ðï¸]/g,'').replace(/â(?![a-zA-Z])/g,'');
+    return out.replace(/\s{2,}/g,' ').trimStart();
+  }
+  function iconName(text){
+    const t = String(text || '').toLowerCase();
+    for(const [key,name] of Object.entries(ICON_MAP)) if(t.includes(key)) return name;
+    return 'chart';
+  }
+  window.fikriIcon = function(name, color){
+    const safe = name || 'chart';
+    const style = color ? ` style="--fi-color:${color}"` : '';
+    return `<span class="fi-icon fi-${safe}"${style} aria-hidden="true"></span>`;
+  };
+  function sanitizeDom(root){
+    root = root || document.body;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node){
+        const p=node.parentElement;
+        if(!p || ['SCRIPT','STYLE','NOSCRIPT'].includes(p.tagName)) return NodeFilter.FILTER_REJECT;
+        return /[ðâïÂ�]|[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/u.test(node.nodeValue||'') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+      }
+    });
+    const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(n => { n.nodeValue = cleanText(n.nodeValue); });
+    root.querySelectorAll('[title],[placeholder],[aria-label]').forEach(el => {
+      ['title','placeholder','aria-label'].forEach(attr => {
+        const v=el.getAttribute(attr);
+        if(v) el.setAttribute(attr, cleanText(v));
+      });
+    });
+  }
+  function decorateIcons(root){
+    root = root || document.body;
+    root.querySelectorAll('.ph h2').forEach(h => {
+      sanitizeDom(h);
+      if(h.querySelector('.fi-icon')) return;
+      h.insertAdjacentHTML('afterbegin', window.fikriIcon(iconName(h.textContent), 'var(--blue)'));
+    });
+    root.querySelectorAll('.nav-item').forEach(item => {
+      if(item.querySelector('.fi-icon')) return;
+      const svg=item.querySelector('svg');
+      if(svg) svg.style.display='none';
+      item.insertAdjacentHTML('afterbegin', window.fikriIcon(iconName(item.textContent), 'currentColor'));
+    });
+  }
+  function runCleanup(){ sanitizeDom(document.body); decorateIcons(document.body); }
+  window.runFikriCleanup = runCleanup;
+  function visibleProfileRows(){
+    return Array.from(document.querySelectorAll('#pf-tbl tbody tr')).filter(r=>r.offsetParent!==null && r.style.display!=='none');
+  }
+  function enhanceProfileTable(){
+    const tbl=document.getElementById('pf-tbl');
+    const panel=document.querySelector('#v-profiles > .panel');
+    if(!tbl||!panel) return;
+    let bar=document.getElementById('profiles-utility-bar');
+    if(!bar){
+      bar=document.createElement('div');
+      bar.id='profiles-utility-bar';
+      bar.className='profiles-utility-bar';
+      const before=document.getElementById('profiles-ux-summary') || tbl;
+      panel.insertBefore(bar,before);
+      bar.innerHTML=`<div class="profiles-utility-left">
+        <button class="profile-chip on" type="button" data-pf-density="comfortable">${window.fikriIcon('profile','var(--blue)')} Comfortable</button>
+        <button class="profile-chip" type="button" data-pf-density="compact">${window.fikriIcon('chart','var(--teal)')} Compact</button>
+        <button class="profile-chip" type="button" data-pf-filter="contacts">${window.fikriIcon('email','var(--orange)')} Missing contacts</button>
+        <button class="profile-chip" type="button" data-pf-filter="aging">${window.fikriIcon('aging','var(--red)')} Aging 170+</button>
+      </div><div class="profiles-utility-right">
+        <button class="profile-chip" type="button" data-pf-action="export-visible">${window.fikriIcon('file','var(--green)')} Export visible</button>
+        <button class="profile-chip" type="button" data-pf-action="copy-count">${window.fikriIcon('sync','var(--purple)')} Copy summary</button>
+      </div>`;
+      bar.addEventListener('click',e=>{
+        const btn=e.target.closest('button'); if(!btn) return;
+        const density=btn.getAttribute('data-pf-density');
+        if(density){
+          panel.classList.toggle('profile-density-compact', density==='compact');
+          bar.querySelectorAll('[data-pf-density]').forEach(b=>b.classList.toggle('on',b===btn));
+        }
+        const filter=btn.getAttribute('data-pf-filter');
+        if(filter==='contacts'){
+          const st=document.getElementById('pf-st'); if(st) st.value='';
+          window.__profilePostFilter='contacts'; renderProfiles();
+        }
+        if(filter==='aging'){
+          const ag=document.getElementById('pf-age'); if(ag) ag.value='ag';
+          window.__profilePostFilter=''; renderProfiles();
+        }
+        const action=btn.getAttribute('data-pf-action');
+        if(action==='export-visible') exportVisibleProfiles();
+        if(action==='copy-count') copyProfileSummary();
+      });
+    }
+    tbl.querySelectorAll('tbody tr').forEach(row=>{
+      const email=row.querySelector('.pf-col-email');
+      if(email && !email.querySelector('a')){
+        const val=email.textContent.trim();
+        if(val && val!=='-') email.innerHTML=`<a href="mailto:${esc(val)}" onclick="event.stopPropagation()">${esc(val)}</a>`;
+      }
+      const phone=row.querySelector('.pf-col-phone');
+      if(phone && !phone.querySelector('a')){
+        const val=phone.textContent.trim();
+        const digits=val.replace(/\D/g,'');
+        if(digits) phone.innerHTML=`<a href="tel:${digits}" onclick="event.stopPropagation()">${esc(val)}</a>`;
+      }
+      const action=row.querySelector('.pf-col-actions button');
+      if(action) action.innerHTML='Open';
+    });
+  }
+  function exportVisibleProfiles(){
+    const rows=visibleProfileRows();
+    if(!rows.length){toast&&toast('No visible profiles to export','amber');return;}
+    const csv=[['Candidate','Recruiter','TL','Role','Visa','Exp','Status','Branch','EAD','Days','Email','Phone'].join(',')].concat(rows.map(r=>Array.from(r.cells).slice(0,12).map(c=>`"${String(c.textContent||'').replace(/"/g,'""').trim()}"`).join(','))).join('\n');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download='visible-profiles.csv';
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  }
+  function copyProfileSummary(){
+    const count=document.getElementById('pf-cnt')?.textContent||`${visibleProfileRows().length} profiles`;
+    const filters=['pf-br','pf-tl','pf-rec','pf-st','pf-tech','pf-visa','pf-exp','pf-age'].map(id=>{const el=document.getElementById(id);return el&&el.value?`${id.replace('pf-','')}: ${el.value}`:'';}).filter(Boolean).join(', ')||'no filters';
+    const text=`All Profiles: ${count}. Filters: ${filters}.`;
+    navigator.clipboard?.writeText(text).then(()=>toast&&toast('Profile summary copied','ok')).catch(()=>toast&&toast(text,'ok'));
+  }
+
+  function rows(){ try { return typeof allData === 'function' ? allData() : []; } catch(_) { return []; } }
+  function pct(n,d){ return d ? Math.round(n/d*100) : 0; }
+  function barRows(items,total){
+    const mx=Math.max(1,...items.map(x=>x.value));
+    return `<div class="fikri-insight-bars">${items.map(x=>`<div class="fikri-insight-row" style="--fi-color:${x.color||'var(--blue)'}"><span class="fikri-insight-label" title="${esc(x.label)}">${esc(x.label)}</span><div class="fikri-insight-track"><div class="fikri-insight-fill" style="width:${Math.max(5,Math.round(x.value/mx*100))}%"></div></div><span class="fikri-insight-value">${x.value}${total?' / '+pct(x.value,total)+'%':''}</span></div>`).join('')}</div>`;
+  }
+  function countBy(data, fn){
+    const m={}; data.forEach(x=>{const k=fn(x); if(k) m[k]=(m[k]||0)+1;});
+    return Object.entries(m).sort((a,b)=>b[1]-a[1]);
+  }
+  window.renderInsights = function renderInsightsFikri(){
+    const d=rows();
+    const total=d.length;
+    const active=d.filter(x=>x.st==='Active'&&!x.backout).length;
+    const po=d.filter(x=>x.st==='PO'&&!x.backout).length;
+    const aging40=d.filter(x=>x.days>=40&&x.days<9999&&x.st!=='PO'&&!x.backout).length;
+    const aging170=d.filter(x=>x.days>=170&&x.days<9999&&x.st!=='PO'&&!x.backout).length;
+    const unassigned=d.filter(x=>!String(x.rec||'').trim()&&x.st!=='PO').length;
+    const recs=[...new Set(d.map(x=>x.rec).filter(Boolean))];
+    const activeRecs=recs.filter(r=>mkt(r,d)>0).length;
+    const avgDays=(()=>{const v=d.filter(x=>x.days>0&&x.days<9999);return v.length?Math.round(v.reduce((s,x)=>s+x.days,0)/v.length):0;})();
+    const expiring90=d.filter(x=>x.expIn>0&&x.expIn<=90&&x.st!=='PO').length;
+    const cards=[
+      ['po','Placement Rate',pct(po,total)+'%',`${po} PO from ${total} profiles`,'var(--green)'],
+      ['chart','Avg Marketing Days',avgDays+'d','Average across dated profiles','var(--blue)'],
+      ['aging','Aging 170+ Days',aging170,'Critical backout risk','var(--red)'],
+      ['alert','Aging 40+ Days',aging40,'Needs follow-up cadence','var(--orange)'],
+      ['profile','Unassigned',unassigned,'No recruiter ownership','var(--teal)'],
+      ['visa','EAD Expiring <=90d',expiring90,'Urgent visa review','var(--red)'],
+      ['team','Active Recruiters',activeRecs,'Recruiters carrying profiles','var(--blue)'],
+      ['chart','Active Pipeline',active,`${pct(active,total)}% of total records`,'var(--green)']
+    ];
+    const grid=document.getElementById('insights-grid');
+    if(grid) grid.innerHTML=cards.map(([ic,title,val,sub,col])=>`<div class="insight-card" style="border-left:4px solid ${col}"><div class="insight-icon">${window.fikriIcon(ic,col)}</div><div class="insight-title">${esc(title)}</div><div class="insight-val" style="color:${col}">${esc(String(val))}</div><div class="insight-sub">${esc(sub)}</div></div>`).join('');
+
+    const agingRows=d.filter(x=>x.days>=40&&x.days<9999&&x.st!=='PO'&&!x.backout).sort((a,b)=>b.days-a.days);
+    const agingEl=document.getElementById('insight-aging-tbl');
+    if(agingEl) agingEl.innerHTML=agingRows.length?`<div style="padding:10px 14px;font-size:11px;color:var(--t2);border-bottom:1px solid var(--bd)">Showing ${agingRows.length} profiles in marketing 40+ days. Click a row to open the profile.</div><div class="tw"><table><thead><tr><th>Candidate</th><th>Recruiter</th><th>TL</th><th>Role</th><th>Visa</th><th>Days</th><th>Branch</th><th>Action</th></tr></thead><tbody>${agingRows.slice(0,80).map(x=>`<tr onclick="showProfModal('${escJ(x.n)}','${escJ(x.rec||'')}')"><td>${esc(x.n)}</td><td>${esc(x.rec||'-')}</td><td>${esc(x.tl||'-')}</td><td>${esc(x.tech||'-')}</td><td>${vBadge(x.visa)}</td><td style="font-family:var(--mono);font-weight:900;color:${x.days>=170?'var(--red)':'var(--orange)'}">${x.days}d</td><td>${brBadge(x.src)}</td><td><button class="btn btn-amber btn-xs" onclick="event.stopPropagation();qkStatus('${escJ(x.n)}','${escJ(x.rec||'')}','PO')">PO</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No aging profiles</div>';
+
+    const tlMap={}; d.forEach(x=>{if(!x.tl)return; const o=tlMap[x.tl]||(tlMap[x.tl]={total:0,po:0,active:0,aging:0}); o.total++; if(x.st==='PO')o.po++; if(x.st==='Active')o.active++; if(x.days>=40&&x.days<9999&&x.st!=='PO')o.aging++;});
+    const tlEl=document.getElementById('insight-tl-board');
+    if(tlEl) tlEl.innerHTML=barRows(Object.entries(tlMap).sort((a,b)=>b[1].total-a[1].total).slice(0,10).map(([label,v],i)=>({label,value:v.total,color:['#4f8ef7','#10cfa0','#f5a623','#a060f5'][i%4]})), total);
+
+    const visaBranch=document.getElementById('insight-visa-branch');
+    if(visaBranch){
+      const items=['GGR','LKN','AMD'].map(src=>({label:brName(src),value:d.filter(x=>x.src===src).length,color:src==='GGR'?'#4f8ef7':src==='LKN'?'#10cfa0':'#f5a623'}));
+      visaBranch.innerHTML=barRows(items,total);
+    }
+    const brEl=document.getElementById('ins-br-bars');
+    if(brEl) brEl.innerHTML=barRows(['GGR','LKN','AMD'].map(src=>({label:`${brName(src)} (${src})`,value:d.filter(x=>x.src===src).length,color:src==='GGR'?'#4f8ef7':src==='LKN'?'#10cfa0':'#f5a623'})),total);
+    const recEl=document.getElementById('ins-rec-bars');
+    if(recEl) recEl.innerHTML=barRows(countBy(d,x=>x.rec).slice(0,12).map(([label,value],i)=>({label,value,color:['#4f8ef7','#10cfa0','#f5a623','#a060f5','#f04040'][i%5]})),total);
+    const perfEl=document.getElementById('ins-rec-perf');
+    if(perfEl) perfEl.innerHTML=barRows(recs.map(r=>({label:r,value:d.filter(x=>x.rec===r&&x.st==='PO').length,color:'#a060f5'})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value).slice(0,12),po||1);
+    const successEl=document.getElementById('ins-success');
+    if(successEl) successEl.innerHTML=`<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px"><div class="insight-card"><div class="insight-icon">${window.fikriIcon('po','var(--purple)')}</div><div class="insight-title">PO Placed</div><div class="insight-val" style="color:var(--purple)">${po}</div><div class="insight-sub">${pct(po,total)}% of total profile base</div></div><div class="insight-card"><div class="insight-icon">${window.fikriIcon('profile','var(--green)')}</div><div class="insight-title">Healthy Active</div><div class="insight-val" style="color:var(--green)">${Math.max(0,active-aging40)}</div><div class="insight-sub">Active and below 40 days</div></div></div>`;
+    const act=document.getElementById('act-chart');
+    if(act) act.innerHTML=barRows(countBy(d,x=>x.st||'Unknown').slice(0,8).map(([label,value],i)=>({label,value,color:['#20d870','#4f8ef7','#f5a623','#f04040','#a060f5'][i%5]})),total);
+    setTimeout(runCleanup,0);
+  };
+
+  const oldNav=window.nav;
+  if(typeof oldNav==='function'&&!window.__fikriNavWrapped){
+    window.__fikriNavWrapped=true;
+    window.nav=function(v){const out=oldNav.apply(this,arguments);setTimeout(()=>{if(v==='insights')window.renderInsights();if(v==='profiles')enhanceProfileTable();runCleanup();},220);return out;};
+  }
+  const oldRefresh=window.refreshAll;
+  if(typeof oldRefresh==='function'&&!window.__fikriRefreshWrapped){
+    window.__fikriRefreshWrapped=true;
+    window.refreshAll=function(){const out=oldRefresh.apply(this,arguments);setTimeout(()=>{if(window._vizvaCurrentView==='insights')window.renderInsights();if(window._vizvaCurrentView==='profiles')enhanceProfileTable();runCleanup();},260);return out;};
+  }
+  const oldProfiles=window.renderProfiles;
+  if(typeof oldProfiles==='function'&&!window.__fikriProfilesWrapped){
+    window.__fikriProfilesWrapped=true;
+    window.renderProfiles=function(){const out=oldProfiles.apply(this,arguments);setTimeout(()=>{enhanceProfileTable();runCleanup();},180);return out;};
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(runCleanup,300),{once:true});
+  else setTimeout(runCleanup,300);
+  const mo=new MutationObserver(()=>{clearTimeout(window.__fikriCleanTimer);window.__fikriCleanTimer=setTimeout(runCleanup,80);});
+  if(document.body) mo.observe(document.body,{childList:true,subtree:true,characterData:true});
+})();
+</script>
 <script id="analytics-profiles-ux-refresh">
 (function analyticsProfilesUxRefresh(){
   const COLORS = {
