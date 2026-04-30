@@ -13164,6 +13164,310 @@ body[data-theme="hud"] .bcard{
   else document.addEventListener('DOMContentLoaded', () => setTimeout(refreshEnhancements, 260), { once:true });
 })();
 </script>
+<style id="dashboard-page-alignment-pass">
+:root{
+  --page-max:1680px;
+  --page-pad-x:clamp(14px,1.45vw,28px);
+  --page-pad-y:18px;
+  --page-gap:16px;
+  --panel-radius:18px;
+  --panel-head-h:58px;
+}
+.content{
+  padding:var(--page-pad-y) var(--page-pad-x) 30px!important;
+  overflow-x:hidden!important;
+}
+.view.on{
+  width:100%!important;
+  max-width:var(--page-max)!important;
+  margin:0 auto!important;
+  min-width:0!important;
+}
+.overview-shell,
+.analytics-shell,
+.access-shell,
+#v-insights,
+#v-sources,
+#v-add-candidate,
+#v-assign,
+#v-recruiters,
+#v-teamleads,
+#v-alerts,
+#v-po{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:var(--page-gap)!important;
+  width:100%!important;
+  min-width:0!important;
+}
+.panel,
+.kpi,
+.bcard,
+.rcard,
+.rpick,
+.tlcard,
+.algroup,
+.access-card,
+.v13-src-hero,
+.v13-src-sec-card,
+.v13-src-card,
+.v12-priorities,
+.v12-branch-card,
+.ux-overview-strip,
+.ux-control-desk{
+  border-radius:var(--panel-radius)!important;
+  margin-bottom:0!important;
+}
+.ph{
+  min-height:var(--panel-head-h)!important;
+  padding:14px 18px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  flex-wrap:wrap!important;
+}
+.ph h2{
+  min-width:0!important;
+  flex:0 1 auto!important;
+  line-height:1.2!important;
+}
+.ph-note{
+  margin-left:auto!important;
+  text-align:right!important;
+  line-height:1.35!important;
+}
+.g2,
+.g3,
+.g4,
+.analytics-major-grid,
+.analytics-two-grid,
+.analytics-three-grid,
+.overview-grid-2,
+.chart-library-grid,
+.page-hero,
+.access-grid,
+.mg3{
+  align-items:stretch!important;
+  width:100%!important;
+  min-width:0!important;
+}
+.g2,
+.overview-grid-2,
+.analytics-major-grid,
+.analytics-two-grid,
+.chart-library-grid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:var(--page-gap)!important;
+}
+.g3,
+.analytics-three-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:var(--page-gap)!important;
+}
+.g4{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:12px!important;
+}
+.mg3{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:12px!important;
+}
+.panel > div:not(.ph):not(.fbar):not(.tw):not(.pf-tw):not(.chart-pad):not(.hm-wrap)[style*="padding"]{
+  box-sizing:border-box!important;
+}
+.fbar,
+.af-grid,
+.sa-form{
+  align-items:end!important;
+}
+.fbar{
+  gap:10px!important;
+  padding:12px 14px!important;
+}
+.fsel,
+.fld,
+.qe-select,
+input,
+select,
+textarea{
+  max-width:100%!important;
+}
+.tw,
+.pf-tw,
+.hm-wrap,
+.chart-pad{
+  min-width:0!important;
+}
+table{
+  max-width:none;
+}
+#v-overview .overview-shell{
+  padding:0!important;
+}
+#v-overview .v12-hero-metrics,
+#kpi-row,
+#analytics-ux-strip,
+#profiles-ux-summary,
+.ux-overview-metrics,
+.ov-stat-strip{
+  width:100%!important;
+}
+#v-analytics .analytics-shell{
+  padding:18px!important;
+  gap:18px!important;
+}
+#v-analytics .analytics-chart-panel,
+#v-analytics .v13-exec,
+#v-analytics .analytics-filters-panel{
+  width:100%!important;
+  min-width:0!important;
+}
+#v-analytics .analytics-filters-panel{
+  position:sticky!important;
+  top:10px!important;
+}
+#v-analytics .analytics-chart-panel{
+  display:flex!important;
+  flex-direction:column!important;
+}
+#v-analytics .analytics-chart-panel .chart-pad,
+#v-analytics .analytics-chart-panel .hm-wrap{
+  flex:1 1 auto!important;
+}
+#v-profiles.on{
+  height:calc(100vh - 88px)!important;
+  max-width:none!important;
+  padding:0!important;
+}
+#v-profiles > .panel{
+  max-width:var(--page-max)!important;
+  width:100%!important;
+  margin:0 auto!important;
+}
+#v-profiles > .panel > .ph,
+#v-profiles > .panel > .fbar,
+#profiles-utility-bar,
+#profiles-ux-summary,
+#profiles-ux-actions{
+  flex-shrink:0!important;
+}
+#profiles-ux-summary{
+  padding:0 14px!important;
+}
+#profiles-ux-actions{
+  padding:0 14px 12px!important;
+}
+#pf-tbl{
+  border-radius:0 0 var(--panel-radius) var(--panel-radius)!important;
+}
+#pf-tbl table.pf-table{
+  min-width:1540px!important;
+}
+#v-insights .g2,
+#v-insights .g3{
+  gap:var(--page-gap)!important;
+}
+#v-insights .insight-grid{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:14px!important;
+  padding:16px!important;
+}
+#v-insights .panel > [style*="padding:14px"]{
+  padding:16px!important;
+}
+#v-add-candidate > div[style*="max-width"]{
+  max-width:1120px!important;
+  width:100%!important;
+}
+#v-add-candidate .panel{
+  width:100%!important;
+}
+.access-grid{
+  display:grid!important;
+  grid-template-columns:minmax(360px,.92fr) minmax(420px,1.08fr)!important;
+  gap:var(--page-gap)!important;
+}
+.v13-src-branches,
+.v13-src-secondary{
+  width:100%!important;
+}
+.v13-src-secondary{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:var(--page-gap)!important;
+}
+@media (max-width:1280px){
+  :root{--page-gap:14px}
+  .g3,
+  .analytics-three-grid,
+  #v-insights .insight-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media (max-width:980px){
+  .content{padding:12px 12px 24px!important}
+  .g2,
+  .g3,
+  .g4,
+  .overview-grid-2,
+  .analytics-major-grid,
+  .analytics-two-grid,
+  .analytics-three-grid,
+  .chart-library-grid,
+  .page-hero,
+  .access-grid,
+  .mg3,
+  #v-insights .insight-grid{
+    grid-template-columns:1fr!important;
+  }
+  #v-profiles.on{
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+  }
+  #v-profiles > .panel{
+    height:auto!important;
+    min-height:0!important;
+  }
+  #pf-tbl{
+    max-height:70vh!important;
+  }
+  .ph{
+    align-items:flex-start!important;
+  }
+  .ph-note{
+    width:100%!important;
+    margin-left:0!important;
+    text-align:left!important;
+  }
+}
+@media (max-width:640px){
+  :root{--panel-radius:14px;--panel-head-h:52px}
+  .ph{padding:12px 14px!important}
+  #analytics-ux-strip,
+  #profiles-ux-summary,
+  .ux-overview-metrics{
+    grid-template-columns:1fr!important;
+  }
+  .profiles-utility-bar{
+    align-items:stretch!important;
+  }
+  .profiles-utility-left,
+  .profiles-utility-right{
+    width:100%!important;
+  }
+  .profile-chip{
+    flex:1 1 auto!important;
+    justify-content:center!important;
+  }
+}
+</style>
 <script id="fullstack-api-adapter">
 (function fullstackApiAdapter(){
   const localHost = ['localhost','127.0.0.1',''].includes(location.hostname) || location.protocol === 'file:';
