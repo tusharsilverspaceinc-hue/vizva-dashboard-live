@@ -13950,6 +13950,518 @@ textarea:focus{
   else setTimeout(refreshPolish, 300);
 })();
 </script>
+<style id="dashboard-feature-upgrades-pass">
+.ux-action-btn{
+  position:relative;
+  min-height:38px;
+  border-radius:12px;
+  border:1px solid color-mix(in srgb,var(--amber) 32%, transparent);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--amber) 16%, var(--s2)),color-mix(in srgb,var(--blue) 9%, var(--s2)));
+  color:var(--amber);
+  font-size:11px;
+  font-weight:850;
+  padding:0 13px;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(10,37,64,.1);
+}
+.ux-action-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 12px 26px rgba(10,37,64,.16);
+}
+.ux-action-count{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:18px;
+  height:18px;
+  padding:0 5px;
+  margin-left:6px;
+  border-radius:999px;
+  background:var(--red);
+  color:#fff;
+  font-size:9px;
+  font-weight:900;
+}
+.ux-action-drawer{
+  position:fixed;
+  inset:0;
+  z-index:120;
+  display:none;
+  background:rgba(2,8,16,.52);
+  backdrop-filter:blur(8px);
+}
+.ux-action-drawer.open{
+  display:block;
+}
+.ux-action-panel{
+  position:absolute;
+  right:18px;
+  top:78px;
+  width:min(760px,calc(100vw - 36px));
+  max-height:calc(100vh - 110px);
+  overflow:auto;
+  border:1px solid color-mix(in srgb,var(--blue) 22%, var(--bd2));
+  border-radius:24px;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--s2) 96%, white 4%),color-mix(in srgb,var(--blue) 6%, var(--s2)));
+  box-shadow:0 28px 80px rgba(2,8,16,.34);
+}
+.ux-action-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  padding:20px 22px 16px;
+  border-bottom:1px solid var(--ux-line,var(--bd2));
+}
+.ux-action-head h2{
+  margin:0;
+  color:var(--t1);
+  font-size:22px;
+  letter-spacing:-.04em;
+}
+.ux-action-head p{
+  margin-top:6px;
+  color:var(--t2);
+  font-size:12px;
+  line-height:1.45;
+}
+.ux-action-close{
+  width:34px;
+  height:34px;
+  border:1px solid var(--bd2);
+  border-radius:12px;
+  background:var(--s3);
+  color:var(--t2);
+  cursor:pointer;
+}
+.ux-action-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  padding:16px;
+}
+.ux-work-card{
+  border:1px solid var(--bd2);
+  border-radius:18px;
+  background:color-mix(in srgb,var(--s2) 86%, white 14%);
+  padding:15px;
+  cursor:pointer;
+  transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease;
+}
+.ux-work-card:hover{
+  transform:translateY(-2px);
+  border-color:color-mix(in srgb,var(--blue) 42%, var(--bd2));
+  box-shadow:0 16px 34px rgba(10,37,64,.13);
+}
+.ux-work-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.ux-work-label{
+  color:var(--t2);
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+}
+.ux-work-value{
+  color:var(--ux-tone,var(--blue));
+  font-size:34px;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:-.05em;
+}
+.ux-work-title{
+  margin-top:10px;
+  color:var(--t1);
+  font-size:14px;
+  font-weight:850;
+}
+.ux-work-copy{
+  margin-top:6px;
+  color:var(--t3);
+  font-size:11px;
+  line-height:1.42;
+}
+.ux-work-footer{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:12px;
+  color:var(--blue);
+  font-size:10px;
+  font-weight:850;
+}
+.ux-drawer-section{
+  padding:0 16px 16px;
+}
+.ux-mini-table{
+  border:1px solid var(--bd2);
+  border-radius:18px;
+  overflow:hidden;
+  background:var(--s2);
+}
+.ux-mini-row{
+  display:grid;
+  grid-template-columns:1.4fr .9fr .6fr .5fr;
+  gap:8px;
+  padding:10px 12px;
+  border-bottom:1px solid var(--bd);
+  color:var(--t2);
+  font-size:11px;
+}
+.ux-mini-row:first-child{
+  background:var(--s3);
+  color:var(--t3);
+  font-size:8.5px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.ux-mini-row:last-child{
+  border-bottom:0;
+}
+.ux-search-pop{
+  position:fixed;
+  z-index:90;
+  display:none;
+  width:min(560px,calc(100vw - 32px));
+  max-height:420px;
+  overflow:auto;
+  border:1px solid color-mix(in srgb,var(--blue) 24%, var(--bd2));
+  border-radius:18px;
+  background:var(--s2);
+  box-shadow:0 22px 60px rgba(2,8,16,.24);
+}
+.ux-search-pop.open{
+  display:block;
+}
+.ux-search-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:12px;
+  padding:11px 13px;
+  border-bottom:1px solid var(--bd);
+  cursor:pointer;
+}
+.ux-search-row:hover{
+  background:color-mix(in srgb,var(--blue) 8%, var(--s2));
+}
+.ux-search-name{
+  color:var(--t1);
+  font-size:12px;
+  font-weight:850;
+}
+.ux-search-meta{
+  margin-top:3px;
+  color:var(--t3);
+  font-size:10px;
+}
+.ux-search-branch{
+  align-self:center;
+  border:1px solid var(--bd2);
+  border-radius:999px;
+  padding:4px 8px;
+  color:var(--blue);
+  font-size:9px;
+  font-weight:850;
+}
+.ux-profile-action-banner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 14px;
+  border-bottom:1px solid color-mix(in srgb,var(--blue) 20%, var(--bd2));
+  background:linear-gradient(135deg,color-mix(in srgb,var(--blue) 9%, var(--s2)),color-mix(in srgb,var(--teal) 7%, var(--s2)));
+}
+.ux-profile-action-banner strong{
+  color:var(--t1);
+}
+.ux-profile-action-banner span{
+  color:var(--t2);
+  font-size:11px;
+}
+@media (max-width:760px){
+  .ux-action-grid{grid-template-columns:1fr}
+  .ux-action-panel{top:12px}
+  .ux-mini-row{grid-template-columns:1fr .8fr}
+  .ux-mini-row span:nth-child(3),
+  .ux-mini-row span:nth-child(4){display:none}
+}
+</style>
+<script id="dashboard-feature-upgrades-pass">
+(function dashboardFeatureUpgradesPass(){
+  if(window.__dashboardFeatureUpgradesPass) return;
+  window.__dashboardFeatureUpgradesPass = true;
+  const safeRows = () => {
+    try { return typeof allData === 'function' ? allData() : []; } catch(_) { return []; }
+  };
+  const low = v => String(v || '').trim().toLowerCase();
+  const digits = v => String(v || '').replace(/\D/g,'');
+  const html = v => typeof esc === 'function' ? esc(String(v ?? '')) : String(v ?? '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+  function isActive(r){
+    return r && r.st !== 'PO' && !r.backout;
+  }
+  function duplicateRows(rows){
+    const map = new Map();
+    rows.forEach(r => {
+      const parts = [low(r.n), low(r.email), digits(r.phone)].filter(Boolean);
+      if(parts.length < 2) return;
+      const key = parts.join('|');
+      if(!map.has(key)) map.set(key, []);
+      map.get(key).push(r);
+    });
+    return [...map.values()].filter(g => g.length > 1).flat();
+  }
+  function overloadedRecruiters(rows){
+    const map = new Map();
+    rows.filter(isActive).forEach(r => {
+      if(!r.rec) return;
+      const key = r.rec + '|' + (r.src || '');
+      const item = map.get(key) || { rec:r.rec, src:r.src || 'GGR', tl:r.tl || '', count:0 };
+      item.count += 1;
+      if(!item.tl && r.tl) item.tl = r.tl;
+      map.set(key,item);
+    });
+    return [...map.values()].filter(x => x.count > 5).sort((a,b) => b.count - a.count);
+  }
+  function getQueues(){
+    const rows = safeRows();
+    const active = rows.filter(isActive);
+    return {
+      rows,
+      active,
+      aging: active.filter(r => Number(r.days || 0) >= 170 && Number(r.days || 0) < 9999),
+      unassigned: active.filter(r => !String(r.rec || '').trim() || String(r.rec || '').trim() === '-' || /assign later/i.test(String(r.rec || ''))),
+      contacts: rows.filter(r => !String(r.email || '').trim() || !digits(r.phone)),
+      visa: active.filter(r => ['OPT','STEM OPT','CPT','H4-EAD','H4 EAD'].includes(String(r.visa || '').toUpperCase()) && Number(r.expIn || 99999) <= 90),
+      duplicates: duplicateRows(rows),
+      overloaded: overloadedRecruiters(rows)
+    };
+  }
+  function ensureActionButton(){
+    const tb = document.querySelector('.tb');
+    if(!tb || document.getElementById('ux-action-btn')) return;
+    const btn = document.createElement('button');
+    btn.id = 'ux-action-btn';
+    btn.type = 'button';
+    btn.className = 'ux-action-btn';
+    btn.innerHTML = 'Action Center <span class="ux-action-count" id="ux-action-count">0</span>';
+    btn.addEventListener('click', openActionCenter);
+    const search = document.querySelector('.tb .srch');
+    tb.insertBefore(btn, search || tb.children[1] || null);
+  }
+  function updateActionCount(){
+    const q = getQueues();
+    const count = q.aging.length + q.unassigned.length + q.contacts.length + q.visa.length + q.duplicates.length;
+    const el = document.getElementById('ux-action-count');
+    if(el) el.textContent = String(count);
+  }
+  function ensureDrawer(){
+    let drawer = document.getElementById('ux-action-drawer');
+    if(drawer) return drawer;
+    drawer = document.createElement('div');
+    drawer.id = 'ux-action-drawer';
+    drawer.className = 'ux-action-drawer';
+    drawer.innerHTML = '<div class="ux-action-panel" role="dialog" aria-label="Action Center"><div id="ux-action-content"></div></div>';
+    drawer.addEventListener('click', e => { if(e.target === drawer) closeActionCenter(); });
+    document.body.appendChild(drawer);
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') closeActionCenter(); });
+    return drawer;
+  }
+  function card(key,label,value,title,copy,tone){
+    return `<div class="ux-work-card" data-queue="${key}" style="--ux-tone:${tone}">
+      <div class="ux-work-top"><div class="ux-work-label">${label}</div><div class="ux-work-value">${value}</div></div>
+      <div class="ux-work-title">${title}</div>
+      <div class="ux-work-copy">${copy}</div>
+      <div class="ux-work-footer"><span>Open work queue</span><span>View</span></div>
+    </div>`;
+  }
+  function topRiskRows(rows){
+    return rows.slice(0,6).map(r => `<div class="ux-mini-row" data-open-profile="${html(r.n)}" data-open-rec="${html(r.rec || '')}">
+      <span>${html(r.n || '-')}</span><span>${html(r.rec || '-')}</span><span>${html(r.src || '-')}</span><span>${html(r.days || 0)}d</span>
+    </div>`).join('');
+  }
+  function openActionCenter(){
+    const drawer = ensureDrawer();
+    const q = getQueues();
+    const content = drawer.querySelector('#ux-action-content');
+    content.innerHTML = `
+      <div class="ux-action-head">
+        <div>
+          <h2>Action Center</h2>
+          <p>Live work queues from the same profile data. Click any card to open the matching profiles immediately.</p>
+        </div>
+        <button class="ux-action-close" type="button" data-close-action>Close</button>
+      </div>
+      <div class="ux-action-grid">
+        ${card('aging','Critical',q.aging.length,'Aging 170+ profiles','Immediate recruiter follow-up needed before backout risk increases.','var(--red)')}
+        ${card('visa','Visa',q.visa.length,'Work authorization expiring','OPT/STEM/CPT/H4-EAD profiles with 90 days or less remaining.','var(--amber)')}
+        ${card('unassigned','Assign',q.unassigned.length,'Unassigned profiles','Candidates without recruiter ownership that need Smart Assign.','var(--blue)')}
+        ${card('contacts','Data Quality',q.contacts.length,'Missing contact details','Profiles missing email or phone number for outreach.','var(--purple)')}
+        ${card('duplicates','Clean Up',q.duplicates.length,'Possible duplicate records','Matched by candidate name, email, and phone references.','var(--orange)')}
+        ${card('overloaded','Capacity',q.overloaded.length,'Overloaded recruiters','Recruiters carrying more than ideal active workload of 5.','var(--teal)')}
+      </div>
+      <div class="ux-drawer-section">
+        <div class="ux-mini-table">
+          <div class="ux-mini-row"><span>Top risk profile</span><span>Recruiter</span><span>Branch</span><span>Days</span></div>
+          ${topRiskRows(q.aging.sort((a,b)=>Number(b.days||0)-Number(a.days||0))) || '<div class="ux-mini-row"><span>No critical aging profiles</span><span>-</span><span>-</span><span>-</span></div>'}
+        </div>
+      </div>`;
+    content.querySelector('[data-close-action]').addEventListener('click', closeActionCenter);
+    content.querySelectorAll('[data-queue]').forEach(el => el.addEventListener('click', () => openQueue(el.getAttribute('data-queue'))));
+    content.querySelectorAll('[data-open-profile]').forEach(el => el.addEventListener('click', () => {
+      const n = el.getAttribute('data-open-profile');
+      const rec = el.getAttribute('data-open-rec');
+      closeActionCenter();
+      if(typeof showProfModal === 'function') setTimeout(() => showProfModal(n, rec), 120);
+    }));
+    drawer.classList.add('open');
+  }
+  function closeActionCenter(){
+    const drawer = document.getElementById('ux-action-drawer');
+    if(drawer) drawer.classList.remove('open');
+  }
+  function resetProfileFilters(){
+    ['pf-br','pf-tl','pf-rec','pf-tech','pf-visa','pf-st','pf-exp','pf-age','pf-imp'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.value = '';
+    });
+    const s = document.getElementById('srch-inp');
+    if(s) s.value = '';
+  }
+  function queueRows(kind){
+    const q = getQueues();
+    if(kind === 'aging') return q.aging.sort((a,b) => Number(b.days||0)-Number(a.days||0));
+    if(kind === 'visa') return q.visa.sort((a,b) => Number(a.expIn||99999)-Number(b.expIn||99999));
+    if(kind === 'unassigned') return q.unassigned;
+    if(kind === 'contacts') return q.contacts;
+    if(kind === 'duplicates') return q.duplicates;
+    if(kind === 'overloaded') {
+      const names = new Set(q.overloaded.map(x => x.rec + '|' + x.src));
+      return q.active.filter(r => names.has((r.rec || '') + '|' + (r.src || 'GGR')));
+    }
+    return q.rows;
+  }
+  function queueLabel(kind){
+    return {
+      aging:'Aging 170+ profiles',
+      visa:'Visa urgency queue',
+      unassigned:'Unassigned profiles',
+      contacts:'Missing contact details',
+      duplicates:'Possible duplicate records',
+      overloaded:'Overloaded recruiter profiles'
+    }[kind] || 'Profile queue';
+  }
+  window.openDashboardQueue = openQueue;
+  function openQueue(kind){
+    closeActionCenter();
+    if(typeof nav === 'function') nav('profiles');
+    setTimeout(() => {
+      resetProfileFilters();
+      const rows = queueRows(kind);
+      const panel = document.querySelector('#v-profiles > .panel');
+      let banner = document.getElementById('ux-profile-action-banner');
+      if(panel && !banner){
+        banner = document.createElement('div');
+        banner.id = 'ux-profile-action-banner';
+        banner.className = 'ux-profile-action-banner';
+        const anchor = document.getElementById('profiles-ux-summary') || panel.querySelector('.fbar') || panel.firstElementChild;
+        panel.insertBefore(banner, anchor ? anchor.nextSibling : panel.firstChild);
+      }
+      if(banner){
+        banner.innerHTML = `<div><strong>${queueLabel(kind)}</strong><br><span>${rows.length} profiles loaded from Action Center. Use Clear Queue to return to normal filters.</span></div><button class="btn btn-ghost btn-sm" type="button" id="ux-clear-queue">Clear Queue</button>`;
+        banner.style.display = '';
+        banner.querySelector('#ux-clear-queue').addEventListener('click', () => {
+          banner.style.display = 'none';
+          if(typeof renderProfiles === 'function') renderProfiles();
+        });
+      }
+      if(typeof buildTbl === 'function') buildTbl('pf-tbl', rows, true);
+      const cnt = document.getElementById('pf-cnt');
+      if(cnt) cnt.textContent = rows.length + ' profiles';
+    }, 260);
+  }
+  function ensureSearchPopover(){
+    let pop = document.getElementById('ux-search-pop');
+    if(pop) return pop;
+    pop = document.createElement('div');
+    pop.id = 'ux-search-pop';
+    pop.className = 'ux-search-pop';
+    document.body.appendChild(pop);
+    document.addEventListener('click', e => {
+      if(!pop.contains(e.target) && e.target.id !== 'srch-inp') pop.classList.remove('open');
+    });
+    return pop;
+  }
+  function renderSearchSuggestions(){
+    const input = document.getElementById('srch-inp');
+    if(!input) return;
+    const q = low(input.value);
+    const pop = ensureSearchPopover();
+    if(q.length < 2){ pop.classList.remove('open'); return; }
+    const rect = input.closest('.srch')?.getBoundingClientRect() || input.getBoundingClientRect();
+    pop.style.left = Math.min(rect.left, window.innerWidth - 580) + 'px';
+    pop.style.top = (rect.bottom + 8) + 'px';
+    const rows = safeRows().filter(r => [r.n,r.rec,r.tl,r.tech,r.visa,r.email,r.phone,r.src].some(v => low(v).includes(q))).slice(0,8);
+    pop.innerHTML = rows.length ? rows.map(r => `<div class="ux-search-row" data-name="${html(r.n)}" data-rec="${html(r.rec || '')}">
+      <div><div class="ux-search-name">${html(r.n || '-')}</div><div class="ux-search-meta">${html(r.tech || '-')} | ${html(r.rec || '-')} | ${html(r.visa || '-')}</div></div>
+      <div class="ux-search-branch">${html(r.src || 'GGR')}</div>
+    </div>`).join('') : '<div class="ux-search-row"><div><div class="ux-search-name">No matching profile</div><div class="ux-search-meta">Try name, recruiter, technology, branch, email, or phone.</div></div></div>';
+    pop.querySelectorAll('[data-name]').forEach(el => el.addEventListener('click', () => {
+      pop.classList.remove('open');
+      const n = el.getAttribute('data-name');
+      const rec = el.getAttribute('data-rec');
+      if(typeof showProfModal === 'function') showProfModal(n, rec);
+    }));
+    pop.classList.add('open');
+  }
+  function bindSearch(){
+    const input = document.getElementById('srch-inp');
+    if(!input || input.__uxSearchBound) return;
+    input.__uxSearchBound = true;
+    input.addEventListener('input', renderSearchSuggestions);
+    input.addEventListener('focus', renderSearchSuggestions);
+    document.addEventListener('keydown', e => {
+      if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k'){
+        e.preventDefault();
+        input.focus();
+        input.select();
+      }
+    });
+  }
+  function refreshFeatureLayer(){
+    ensureActionButton();
+    bindSearch();
+    updateActionCount();
+    if(activeViewNameSafe() !== 'profiles') {
+      const banner = document.getElementById('ux-profile-action-banner');
+      if(banner) banner.style.display = 'none';
+    }
+  }
+  function activeViewNameSafe(){
+    const active = document.querySelector('.view.on');
+    return active ? active.id.replace(/^v-/,'') : '';
+  }
+  ['nav','renderProfiles','renderAnalytics','renderInsights','refreshAll','fetchAllSheets'].forEach(name => {
+    const fn = window[name];
+    if(typeof fn !== 'function' || fn.__featureUpgradeWrapped) return;
+    const wrapped = function(){
+      const out = fn.apply(this, arguments);
+      setTimeout(refreshFeatureLayer, 260);
+      return out;
+    };
+    wrapped.__featureUpgradeWrapped = true;
+    window[name] = wrapped;
+  });
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(refreshFeatureLayer, 400), { once:true });
+  else setTimeout(refreshFeatureLayer, 400);
+  setInterval(updateActionCount, 30000);
+})();
+</script>
 <script id="fullstack-api-adapter">
 (function fullstackApiAdapter(){
   const localHost = ['localhost','127.0.0.1',''].includes(location.hostname) || location.protocol === 'file:';
