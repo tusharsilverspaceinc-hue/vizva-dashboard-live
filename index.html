@@ -14833,6 +14833,225 @@ textarea:focus{
   }
 }
 </style>
+<style id="saasfly-theme-integrity-pass">
+/* SaaSfly-inspired refinement: clean card borders, calm headers, compact nav.
+   Theme integrity: ST remains light SaaS, HD/LX keep their original dark chrome. */
+:root{
+  --sf-radius:14px;
+  --sf-radius-lg:18px;
+  --sf-shadow:0 1px 2px rgba(15,23,42,.06),0 10px 24px rgba(15,23,42,.06);
+  --sf-shadow-hover:0 2px 4px rgba(15,23,42,.08),0 18px 42px rgba(15,23,42,.1);
+}
+body[data-theme="stripe"]{
+  --sf-surface:#ffffff;
+  --sf-muted:#f8fafc;
+  --sf-border:#e2e8f0;
+  --sf-ink:#0f172a;
+  --sf-sub:#64748b;
+}
+body[data-theme="hud"]{
+  --sf-surface:rgba(8,18,38,.92);
+  --sf-muted:rgba(0,20,40,.68);
+  --sf-border:rgba(0,240,255,.14);
+  --sf-ink:#e2e8f0;
+  --sf-sub:#94a3b8;
+}
+body[data-theme="luxe"]{
+  --sf-surface:rgba(24,24,32,.92);
+  --sf-muted:rgba(20,20,28,.76);
+  --sf-border:rgba(212,175,55,.16);
+  --sf-ink:#f0ece2;
+  --sf-sub:#a8a29e;
+}
+.panel,
+.kpi,
+.bcard,
+.rcard,
+.rpick,
+.tlcard,
+.stat-card,
+.v12-priorities,
+.v12-branch-card,
+.analytics-chart-panel,
+.v13-exec,
+.access-card,
+.v13-src-card,
+.v13-src-sec-card,
+.ux-page-intro,
+.ux-work-card{
+  border:1px solid var(--sf-border)!important;
+  border-radius:var(--sf-radius-lg)!important;
+  background:var(--sf-surface)!important;
+  box-shadow:var(--sf-shadow)!important;
+}
+.panel:hover,
+.rcard:hover,
+.tlcard:hover,
+.v12-branch-card:hover,
+.analytics-chart-panel:hover,
+.ux-work-card:hover{
+  box-shadow:var(--sf-shadow-hover)!important;
+}
+.ph{
+  background:var(--sf-muted)!important;
+  border-bottom:1px solid var(--sf-border)!important;
+}
+.ph h2,
+.ux-page-title{
+  color:var(--sf-ink)!important;
+}
+.ph-note,
+.ux-page-sub{
+  color:var(--sf-sub)!important;
+}
+.fbar,
+.sa-form,
+.af-grid,
+#v-profiles>.panel>.fbar{
+  background:var(--sf-muted)!important;
+  border-color:var(--sf-border)!important;
+}
+.fld,
+.fsel,
+input,
+select,
+textarea{
+  background:var(--sf-muted)!important;
+  border:1px solid var(--sf-border)!important;
+  color:var(--sf-ink)!important;
+}
+table thead th,
+thead th{
+  background:var(--sf-muted)!important;
+  border-bottom:1px solid var(--sf-border)!important;
+  color:var(--sf-sub)!important;
+}
+tbody tr{
+  border-bottom:1px solid color-mix(in srgb,var(--sf-border) 72%, transparent)!important;
+}
+tbody tr:hover td,
+tbody tr:hover{
+  background:color-mix(in srgb,var(--blue) 8%, var(--sf-surface))!important;
+}
+.nav-item{
+  border-radius:10px!important;
+  font-weight:650!important;
+}
+.nav-item.on{
+  box-shadow:none!important;
+}
+.btn{
+  border-radius:10px!important;
+  box-shadow:none!important;
+}
+.btn:hover{
+  box-shadow:0 8px 20px rgba(15,23,42,.12)!important;
+}
+body[data-theme="stripe"] .tb,
+body[data-theme="stripe"] .sb,
+body[data-theme="stripe"] .brand{
+  background:#0A2540!important;
+}
+body[data-theme="stripe"] .tb-title{
+  color:#dff1ff!important;
+}
+body[data-theme="stripe"] .srch,
+body[data-theme="stripe"] .theme-switch{
+  background:#fff!important;
+  border-color:#dbe4ee!important;
+}
+body[data-theme="stripe"] .srch input{
+  background:transparent!important;
+  color:#0A2540!important;
+}
+body[data-theme="hud"] .tb,
+body[data-theme="hud"] .sb{
+  background:var(--chrome-bg)!important;
+  border-color:rgba(0,240,255,.12)!important;
+}
+body[data-theme="hud"] .brand{
+  background:#020810!important;
+  border-color:rgba(0,240,255,.12)!important;
+}
+body[data-theme="hud"] .tb-title{
+  color:var(--t1)!important;
+  text-shadow:0 0 18px rgba(0,240,255,.2);
+}
+body[data-theme="hud"] .srch,
+body[data-theme="hud"] .theme-switch{
+  background:rgba(0,20,40,.72)!important;
+  border-color:rgba(0,240,255,.18)!important;
+  box-shadow:0 0 0 1px rgba(0,240,255,.04),0 8px 22px rgba(0,0,0,.22)!important;
+}
+body[data-theme="hud"] .srch input{
+  background:transparent!important;
+  color:var(--t1)!important;
+}
+body[data-theme="hud"] .theme-pill{
+  color:var(--t2)!important;
+}
+body[data-theme="hud"] .theme-pill.on{
+  color:var(--blue)!important;
+  background:rgba(0,240,255,.1)!important;
+}
+body[data-theme="hud"] .nav-item.on{
+  color:var(--blue)!important;
+  background:rgba(0,240,255,.09)!important;
+  border:1px solid rgba(0,240,255,.12)!important;
+}
+body[data-theme="luxe"] .tb,
+body[data-theme="luxe"] .sb{
+  background:var(--chrome-bg)!important;
+  border-color:rgba(212,175,55,.12)!important;
+}
+body[data-theme="luxe"] .brand{
+  background:#0c0c10!important;
+  border-color:rgba(212,175,55,.12)!important;
+}
+body[data-theme="luxe"] .tb-title{
+  color:var(--t1)!important;
+}
+body[data-theme="luxe"] .srch,
+body[data-theme="luxe"] .theme-switch{
+  background:rgba(20,20,28,.82)!important;
+  border-color:rgba(212,175,55,.18)!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.24)!important;
+}
+body[data-theme="luxe"] .srch input{
+  background:transparent!important;
+  color:var(--t1)!important;
+}
+body[data-theme="luxe"] .theme-pill{
+  color:var(--t2)!important;
+}
+body[data-theme="luxe"] .theme-pill.on{
+  color:var(--blue)!important;
+  background:rgba(212,175,55,.1)!important;
+}
+body[data-theme="luxe"] .nav-item.on{
+  color:var(--blue)!important;
+  background:rgba(212,175,55,.09)!important;
+  border:1px solid rgba(212,175,55,.12)!important;
+}
+body[data-theme="hud"] .ux-action-btn,
+body[data-theme="luxe"] .ux-action-btn{
+  background:var(--sf-muted)!important;
+  color:var(--blue)!important;
+  border-color:var(--sf-border)!important;
+}
+body[data-theme="hud"] .content{
+  background:
+    radial-gradient(circle at 16% 0%,rgba(0,240,255,.08),transparent 30%),
+    radial-gradient(circle at 88% 12%,rgba(168,85,247,.08),transparent 32%),
+    #030712!important;
+}
+body[data-theme="luxe"] .content{
+  background:
+    radial-gradient(circle at 16% 0%,rgba(212,175,55,.08),transparent 30%),
+    radial-gradient(circle at 88% 12%,rgba(192,132,252,.05),transparent 32%),
+    #0f0f14!important;
+}
+</style>
 <script id="fullstack-api-adapter">
 (function fullstackApiAdapter(){
   const localHost = ['localhost','127.0.0.1',''].includes(location.hostname) || location.protocol === 'file:';
