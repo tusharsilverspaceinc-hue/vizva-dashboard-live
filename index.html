@@ -13177,6 +13177,9 @@ body[data-theme="hud"] .bcard{
   padding:var(--page-pad-y) var(--page-pad-x) 30px!important;
   overflow-x:hidden!important;
 }
+.view:not(.on){
+  display:none!important;
+}
 .view.on{
   width:100%!important;
   max-width:var(--page-max)!important;
@@ -13186,14 +13189,14 @@ body[data-theme="hud"] .bcard{
 .overview-shell,
 .analytics-shell,
 .access-shell,
-#v-insights,
-#v-sources,
-#v-add-candidate,
-#v-assign,
-#v-recruiters,
-#v-teamleads,
-#v-alerts,
-#v-po{
+#v-insights.on,
+#v-sources.on,
+#v-add-candidate.on,
+#v-assign.on,
+#v-recruiters.on,
+#v-teamleads.on,
+#v-alerts.on,
+#v-po.on{
   display:flex!important;
   flex-direction:column!important;
   gap:var(--page-gap)!important;
